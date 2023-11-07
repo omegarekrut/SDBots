@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Log;
 use Telegram\Bot\Api;
 use Telegram\Bot\Exceptions\TelegramSDKException;
 use Illuminate\Http\Request;
@@ -40,17 +39,7 @@ class BotController extends Controller
      */
     public function webhook(Request $request): JsonResponse
     {
-        Log::info('Webhook hit');
-        try {
-            $update = Telegram::commandsHandler(true);
-            Log::info(print_r($update, true));
-        } catch (\Exception $e) {
-            Log::error('Error handling webhook: ' . $e->getMessage());
-            // Optionally, you can log the stack trace
-            Log::error($e->getTraceAsString());
-            // Respond with an error message or status
-            return response()->json(['error' => $e->getMessage()], 500);
-        }
+        Telegram::commandsHandler(true);
 
         return response()->json(['status' => 'success']);
     }
