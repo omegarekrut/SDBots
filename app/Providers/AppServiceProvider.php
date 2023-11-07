@@ -20,8 +20,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        Telegram::addCommands([
-            \App\Telegram\Commands\StartCommand::class,
-        ]);
+
     }
 }
