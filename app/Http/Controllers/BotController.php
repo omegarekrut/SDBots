@@ -3,10 +3,9 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Telegram\Bot\Api;
 use Telegram\Bot\Exceptions\TelegramSDKException;
-use Illuminate\Http\Request;
-use Telegram\Bot\Laravel\Facades\Telegram;
 
 class BotController extends Controller
 {
@@ -39,8 +38,10 @@ class BotController extends Controller
      */
     public function webhook(Request $request): JsonResponse
     {
-        Telegram::commandsHandler(true);
+        // This will fetch the update from the request and process it through the bot's command system.
+        $update = $this->telegram->commandsHandler(true);
 
+        // Always return a response to Telegram to avoid unnecessary retries.
         return response()->json(['status' => 'success']);
     }
 }
