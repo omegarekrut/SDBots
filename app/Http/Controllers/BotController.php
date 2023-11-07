@@ -29,19 +29,4 @@ class BotController extends Controller
     {
         return $this->telegram->getMe();
     }
-
-    /**
-     * Handle incoming webhook updates from Telegram.
-     *
-     * @param Request $request
-     * @return JsonResponse
-     */
-    public function webhook(Request $request): JsonResponse
-    {
-        // This will fetch the update from the request and process it through the bot's command system.
-        $update = $this->telegram->commandsHandler(true);
-
-        // Always return a response to Telegram to avoid unnecessary retries.
-        return response()->json(['status' => 'success']);
-    }
 }
