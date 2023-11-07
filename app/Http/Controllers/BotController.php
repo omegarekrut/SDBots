@@ -6,6 +6,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Telegram\Bot\Api;
 use Telegram\Bot\Exceptions\TelegramSDKException;
+use Telegram\Bot\Laravel\Facades\Telegram;
 
 class BotController extends Controller
 {
@@ -28,5 +29,13 @@ class BotController extends Controller
     public function show(): \Telegram\Bot\Objects\User
     {
         return $this->telegram->getMe();
+    }
+
+    public function handleRequest(): string
+    {
+        $update = Telegram::commandsHandler(true);
+        // Your code to handle the update here
+
+        return 'ok';
     }
 }

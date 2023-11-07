@@ -19,11 +19,11 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::get('/bot/getwebhookinfo', function () {
-    return Telegram::getWebhookInfo();
+
+Route::get('/bot/setup-webhook', function () {
+    return Telegram::setWebhook(['url' => env("TELEGRAM_WEBHOOK_URL", "TELEGRAM_WEBHOOK_URL_VALUE")]);
 });
 
-Route::get('/bot/setwebhook', function () {
-    $url = 'https://dev41.devzone.bio/api/bot/3f0d8abc838a4d9184f3b1b5badf00e2';
-    return Telegram::setWebhook(['url' => $url]);
-});
+
+Route::post('/bot/webhook', [\App\Http\Controllers\BotController::class, 'handleRequest']);
+
