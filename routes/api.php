@@ -19,7 +19,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::get('/bot/3f0d8abc838a4d9184f3b1b5badf00e2', [\App\Http\Controllers\BotController::class, 'webhook']);
+Route::post('/bot/3f0d8abc838a4d9184f3b1b5badf00e2', [\App\Http\Controllers\BotController::class, 'webhook']);
 
 Route::get('/bot/getwebhookinfo', function () {
     return Telegram::getWebhookInfo();
