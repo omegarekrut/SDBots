@@ -2,6 +2,8 @@
 
 namespace App\Telegram\Commands;
 
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -39,7 +41,7 @@ class ValidateOrderCommand extends Command
         return trim(str_replace('/validate', '', $messageText));
     }
 
-    private function fetchValidationResults(string $orderID): \Illuminate\Database\Eloquent\Model|\Illuminate\Database\Query\Builder|null
+    private function fetchValidationResults(string $orderID): Model|Builder|null
     {
         return DB::table('errors')->where('order_id', $orderID)->first();
     }
