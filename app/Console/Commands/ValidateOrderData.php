@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Models\Error;
 use App\Services\SuperDispatchService;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Log;
 
 class ValidateOrderData extends Command
 {
@@ -35,10 +36,15 @@ class ValidateOrderData extends Command
             return self::FAILURE;
         }
 
-        $this->validateOrder($order['data']);
-
-        $this->info('Order data validated successfully.');
-        return self::SUCCESS;
+        try {
+            $this->validateOrder($order['data']);
+            $this->info('Order data validated successfully.');
+            return self::SUCCESS;
+        } catch (\Exception $e) {
+            Log::error('JSON structure error: ' . $e->getMessage(), ['orderID' => $orderID]);
+            $this->error('JSON structure error: ' . $e->getMessage());
+            return self::FAILURE;
+        }
     }
 
     private function validateOrder(array $order): void

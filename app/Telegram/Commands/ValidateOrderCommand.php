@@ -14,6 +14,7 @@ class ValidateOrderCommand extends Command
 
     public function handle(): void
     {
+
         $orderID = $this->extractOrderID($this->getUpdate()->getMessage()->getText(true));
         Log::info('ValidateOrderCommand started', ['orderID' => $orderID]);
 
@@ -27,6 +28,12 @@ class ValidateOrderCommand extends Command
         ]);
 
         $message = $validationResults ? $this->formatValidationResults($validationResults) : "No errors found for Order ID: {$orderID}";
+
+        $jsonError = Log::get('error');
+        if ($jsonError) {
+            $message .= "\nJSON Error: " . $jsonError;
+        }
+
         $this->replyWithMessage(['text' => $message]);
     }
 
