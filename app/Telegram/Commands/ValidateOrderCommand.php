@@ -14,11 +14,10 @@ class ValidateOrderCommand extends Command
 
     public function handle(): void
     {
-
         $orderID = $this->extractOrderID($this->getUpdate()->getMessage()->getText(true));
         Log::info('ValidateOrderCommand started', ['orderID' => $orderID]);
-
         Log::info('Executing validate:order-data command', ['orderID' => $orderID]);
+
         Artisan::call('validate:order-data', ['orderID' => $orderID]);
 
         $validationResults = $this->fetchValidationResults($orderID);
@@ -29,9 +28,8 @@ class ValidateOrderCommand extends Command
 
         $message = $validationResults ? $this->formatValidationResults($validationResults) : "No errors found for Order ID: {$orderID}";
 
-        $jsonError = Log::get('error');
-        if ($jsonError) {
-            $message .= "\nJSON Error: " . $jsonError;
+        if (!empty($validationResults->error_message)) {
+            $message .= "\nJSON Error: " . $validationResults->error_message;
         }
 
         $this->replyWithMessage(['text' => $message]);

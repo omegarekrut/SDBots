@@ -39,10 +39,16 @@ class ValidateOrderData extends Command
         try {
             $this->validateOrder($order['data']);
             $this->info('Order data validated successfully.');
+
             return self::SUCCESS;
         } catch (\Exception $e) {
             Log::error('JSON structure error: ' . $e->getMessage(), ['orderID' => $orderID]);
             $this->error('JSON structure error: ' . $e->getMessage());
+
+            $errorRecord = Error::firstOrNew(['order_id' => $orderID]);
+            $errorRecord->error_message = $e->getMessage();
+            $errorRecord->save();
+
             return self::FAILURE;
         }
     }
