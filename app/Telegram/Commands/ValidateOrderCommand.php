@@ -2,7 +2,6 @@
 
 namespace App\Telegram\Commands;
 
-use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Telegram\Bot\Commands\Command;
@@ -14,25 +13,28 @@ class ValidateOrderCommand extends Command
 
     public function handle(): void
     {
-        $messageText = $this->getUpdate()->getMessage()->getText(true);
-        $orderID = trim(str_replace('/validate', '', $messageText));
-
+        $orderID = $this->extractOrderID($this->getUpdate()->getMessage()->getText(true));
         Log::info('ValidateOrderCommand started', ['orderID' => $orderID]);
 
-        $validationResults = DB::table('errors')->where('order_id', $orderID)->first();
+        $validationResults = $this->fetchValidationResults($orderID);
         $message = $validationResults ? $this->formatValidationResults($validationResults) : "No errors found for Order ID: {$orderID}";
-
-        Log::info('Validation results', [
-            'orderID' => $orderID,
-            'validationResults' => $validationResults
-        ]);
 
         $this->replyWithMessage(['text' => $message]);
     }
 
+    private function extractOrderID(string $messageText): string
+    {
+        return trim(str_replace('/validate', '', $messageText));
+    }
+
+    private function fetchValidationResults(string $orderID): object|null
+    {
+        return DB::table('errors')->where('order_id', $orderID)->first();
+    }
+
     protected function formatValidationResults($results): string
     {
-        $formattedMessage = "Validation Results for Order ID: {$results->order_id}\n\n";
+        $formattedMessage = "Validation results for Order ID: {$results->order_id}\n\n";
 
         $errorMessages = [
             'err_loadid' => 'Empty or NULL Load ID',
