@@ -2,6 +2,7 @@
 
 namespace App\Telegram\Commands;
 
+use App\Services\ErrorMessageService;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -49,17 +50,7 @@ class ValidateOrderCommand extends Command
     {
         $formattedMessage = "Validation results for Order ID: {$results->order_id}\n\n";
 
-        $errorMessages = [
-            'err_loadid' => 'Empty or NULL Load ID',
-            'err_client' => 'There is no client',
-            'err_amount' => 'Price less than 100',
-            'err_attach' => 'PDF BOL URL is missing or empty',
-            'err_pickaddress' => 'Pickup address state or zip is missing',
-            'err_deladdress' => 'Delivery address state or zip is missing',
-            'err_email' => 'No email found in internal notes',
-            'err_pickbol' => 'Less than 20 photos in vehicle data',
-            'err_method' => 'Invalid payment method in vehicle data)'
-        ];
+        $errorMessages = ErrorMessageService::getErrorMessages();
 
         foreach ($results as $key => $value) {
             if (str_starts_with($key, 'err_') && $key !== 'err_count' && $value == 1) {
