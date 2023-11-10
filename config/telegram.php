@@ -37,6 +37,7 @@ return [
             'webhook_url' => env('TELEGRAM_WEBHOOK_URL'),
             'commands' => [
                 App\Telegram\Commands\StartCommand::class,
+                App\Telegram\Commands\ValidateOrderCommand::class
             ],
         ],
 
