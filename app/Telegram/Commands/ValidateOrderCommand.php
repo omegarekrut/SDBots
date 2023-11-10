@@ -14,31 +14,18 @@ class ValidateOrderCommand extends Command
 
     public function handle(): void
     {
-        $arguments = $this->getUpdate()->getMessage()->getText(true);
+        $messageText = $this->getUpdate()->getMessage()->getText(true);
+        $orderID = trim(str_replace('/validate', '', $messageText));
 
-        // Log the received arguments
-        Log::info('ValidateOrderCommand started', ['orderID' => $arguments]);
-
-        // Call the Artisan command
-        $exitCode = Artisan::call('validate:order-data', ['orderID' => $arguments]);
-        $output = Artisan::output();
-
-        // Log the result of the Artisan command
-        Log::info('Artisan command executed', [
-            'exitCode' => $exitCode,
-            'output' => $output
-        ]);
-
-        // Reply with the output of the Artisan command
-        $this->replyWithMessage(['text' => $output]);
+        Log::info('ValidateOrderCommand started', ['orderID' => $orderID]);
 
         // Fetch validation results from the database
-        $validationResults = DB::table('errors')->where('order_id', $arguments)->first();
-        $message = $validationResults ? $this->formatValidationResults($validationResults) : "No errors found for Order ID: {$arguments}";
+        $validationResults = DB::table('errors')->where('order_id', $orderID)->first();
+        $message = $validationResults ? $this->formatValidationResults($validationResults) : "No errors found for Order ID: {$orderID}";
 
         // Log the validation results
         Log::info('Validation results', [
-            'orderID' => $arguments,
+            'orderID' => $orderID,
             'validationResults' => $validationResults
         ]);
 
