@@ -5,7 +5,6 @@ namespace App\Telegram\Commands;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use stdClass;
 use Telegram\Bot\Commands\Command;
 
 class ValidateOrderCommand extends Command
@@ -18,14 +17,10 @@ class ValidateOrderCommand extends Command
         $orderID = $this->extractOrderID($this->getUpdate()->getMessage()->getText(true));
         Log::info('ValidateOrderCommand started', ['orderID' => $orderID]);
 
+        Log::info('Executing validate:order-data command', ['orderID' => $orderID]);
+        Artisan::call('validate:order-data', ['orderID' => $orderID]);
+
         $validationResults = $this->fetchValidationResults($orderID);
-
-        if (!$validationResults) {
-            Log::info('No validation results found, executing validate:order-data command', ['orderID' => $orderID]);
-            Artisan::call('validate:order-data', ['orderID' => $orderID]);
-            $validationResults = $this->fetchValidationResults($orderID);
-        }
-
         Log::info('Fetched validation results', [
             'orderID' => $orderID,
             'validationResults' => $validationResults
