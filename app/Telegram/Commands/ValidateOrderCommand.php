@@ -35,15 +35,15 @@ class ValidateOrderCommand extends Command
         $formattedMessage = "Validation Results for Order ID: {$results->order_id}\n\n";
 
         $errorMessages = [
-            'err_loadid' => 'Empty or NULL Load ID (data->vehicles->id)',
-            'err_client' => 'There is no client (data->customer->name is empty)',
-            'err_amount' => 'Price less than 100 (data->price)',
-            'err_attach' => 'PDF BOL URL is missing or empty (pdf_bol_url)',
-            'err_pickaddress' => 'Pickup address state or zip is missing (pickup->venue->state/zip)',
-            'err_deladdress' => 'Delivery address state or zip is missing (delivery->venue->state/zip)',
-            'err_email' => 'No email found in internal notes (data->internal_notes)',
-            'err_pickbol' => 'Less than 20 photos in vehicle data (data->vehicles->photos)',
-            'err_method' => 'Invalid payment method in vehicle data (data->vehicles->[Factoring, Other, Comcheck, ACH])'
+            'err_loadid' => 'Empty or NULL Load ID',
+            'err_client' => 'There is no client',
+            'err_amount' => 'Price less than 100',
+            'err_attach' => 'PDF BOL URL is missing or empty',
+            'err_pickaddress' => 'Pickup address state or zip is missing',
+            'err_deladdress' => 'Delivery address state or zip is missing',
+            'err_email' => 'No email found in internal notes',
+            'err_pickbol' => 'Less than 20 photos in vehicle data',
+            'err_method' => 'Invalid payment method in vehicle data)'
         ];
 
         foreach ($results as $key => $value) {
