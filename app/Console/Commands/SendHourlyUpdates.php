@@ -6,6 +6,7 @@ use App\Models\Error;
 use App\Models\Subscription;
 use App\Services\ErrorMessageService;
 use Illuminate\Console\Command;
+use Telegram\Bot\Laravel\Facades\Telegram;
 
 class SendHourlyUpdates extends Command
 {
@@ -34,6 +35,10 @@ class SendHourlyUpdates extends Command
             $errors = $this->fetchErrorsWithConditions();
             if ($errors->isNotEmpty()) {
                 $message = $this->formatErrors($errors);
+                Telegram::sendMessage([
+                    'chat_id' => $subscriber->telegram_user_id,
+                    'text' => $message
+                ]);
             }
         }
     }
