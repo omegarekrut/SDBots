@@ -40,7 +40,7 @@ class ValidateOrderCommand extends Command
         return trim(str_replace('/validate', '', $messageText));
     }
 
-    private function fetchValidationResults(string $orderID): \Illuminate\Database\Eloquent\Model|stdClass|\Illuminate\Database\Query\Builder|null
+    private function fetchValidationResults(string $orderID)
     {
         return DB::table('errors')->where('order_id', $orderID)->first();
     }
