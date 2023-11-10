@@ -10,13 +10,7 @@ class FetchOrder extends Command
 {
     protected $signature = 'fetch:order {orderId}';
     protected $description = 'Fetch a single order by ID';
-    private SuperDispatchService $superDispatchService;
 
-    public function __construct(SuperDispatchService $superDispatchService)
-    {
-        parent::__construct();
-        $this->superDispatchService = $superDispatchService;
-    }
 
     public function handle(): int
     {
@@ -49,5 +43,16 @@ class FetchOrder extends Command
         ])->get("https://carrier.superdispatch.com/v1/orders/{$orderId}/");
 
         return $response->successful() ? $response->json() : null;
+    }
+
+    private function getAccessToken(): ?string
+    {
+        $response = Http::asForm()->post('https://carrier.superdispatch.com/oauth/token/', [
+            'grant_type' => 'client_credentials',
+            'client_id' => env('SUPERDISPATCH_CLIENT_ID'),
+            'client_secret' => env('SUPERDISPATCH_CLIENT_SECRET')
+        ]);
+
+        return $response->successful() ? $response->json()['access_token'] : null;
     }
 }
