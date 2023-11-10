@@ -16,6 +16,8 @@ class ValidateOrderCommand extends Command
         $arguments = $this->getUpdate()->getMessage()->getText(true);
 
         Artisan::call('validate:order-data', ['orderID' => $arguments]);
+        $output = Artisan::output();
+        $this->replyWithMessage(['text' => $output]);
 
         $validationResults = DB::table('errors')->where('order_id', $arguments)->first();
         $message = $validationResults ? $this->formatValidationResults($validationResults) : "No errors found for Order ID: {$arguments}";
