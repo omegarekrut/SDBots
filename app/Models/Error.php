@@ -20,6 +20,7 @@ class Error extends Model
         'err_pdelbol',
         'err_method',
         'err_count',
+        'error_message'
     ];
 
     public $incrementing = false;
@@ -38,5 +39,6 @@ class Error extends Model
         'err_pdelbol' => 'integer',
         'err_method' => 'integer',
         'err_count' => 'integer',
+        'error_message' => 'string'
     ];
 }

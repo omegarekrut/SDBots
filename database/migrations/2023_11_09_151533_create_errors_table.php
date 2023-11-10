@@ -25,6 +25,7 @@ return new class extends Migration
             $table->tinyInteger('err_pdelbol')->default(0);
             $table->tinyInteger('err_method')->default(0);
             $table->integer('err_count')->default(0);
+            $table->string('error_message')->default('');
             $table->timestamps();
         });
     }
