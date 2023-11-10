@@ -2,6 +2,7 @@
 
 namespace App\Telegram\Commands;
 
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Telegram\Bot\Commands\Command;
@@ -17,13 +18,19 @@ class ValidateOrderCommand extends Command
         Log::info('ValidateOrderCommand started', ['orderID' => $orderID]);
 
         $validationResults = $this->fetchValidationResults($orderID);
+
+        if (!$validationResults) {
+            Log::info('No validation results found, executing validate:order-data command', ['orderID' => $orderID]);
+            Artisan::call('validate:order-data', ['orderID' => $orderID]);
+            $validationResults = $this->fetchValidationResults($orderID);
+        }
+
         Log::info('Fetched validation results', [
             'orderID' => $orderID,
             'validationResults' => $validationResults
         ]);
 
         $message = $validationResults ? $this->formatValidationResults($validationResults) : "No errors found for Order ID: {$orderID}";
-
         $this->replyWithMessage(['text' => $message]);
     }
 
@@ -32,7 +39,7 @@ class ValidateOrderCommand extends Command
         return trim(str_replace('/validate', '', $messageText));
     }
 
-    private function fetchValidationResults(string $orderID): object|null
+    private function fetchValidationResults(string $orderID): \Illuminate\Database\Eloquent\Model|\Illuminate\Database\Query\Builder|null
     {
         return DB::table('errors')->where('order_id', $orderID)->first();
     }
