@@ -17,6 +17,11 @@ class ValidateOrderCommand extends Command
         Log::info('ValidateOrderCommand started', ['orderID' => $orderID]);
 
         $validationResults = $this->fetchValidationResults($orderID);
+        Log::info('Fetched validation results', [
+            'orderID' => $orderID,
+            'validationResults' => $validationResults
+        ]);
+
         $message = $validationResults ? $this->formatValidationResults($validationResults) : "No errors found for Order ID: {$orderID}";
 
         $this->replyWithMessage(['text' => $message]);
