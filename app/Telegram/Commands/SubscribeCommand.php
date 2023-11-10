@@ -7,6 +7,15 @@ use Telegram\Bot\Commands\Command;
 
 class SubscribeCommand extends Command
 {
+    /**
+     * @var string Command Name
+     */
+    protected string $name = 'subscribe';
+
+    /**
+     * @var string Command Description
+     */
+    protected string $description = 'Send notification every hour about orderIDs errors';
     public function handle(): void
     {
         $telegramUserId = $this->getUpdate()->getMessage()->getFrom()->getId();
