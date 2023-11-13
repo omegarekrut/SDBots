@@ -30,8 +30,8 @@ class ValidateOrderData extends Command
 
         $order = $this->superDispatchService->fetchOrder($orderID, $accessToken);
 
-        if (!$order) {
-            return $this->logAndReturnError('Failed to fetch order data.');
+        if (!$order || !isset($order['data'])) {
+            return $this->logAndReturnError('Failed to fetch order data or order data is incomplete.', $orderID);
         }
 
         return $this->processOrderValidation($order['data'], $orderID);
