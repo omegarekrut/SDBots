@@ -25,56 +25,66 @@ class ValidateOrderData extends Command
         $accessToken = $this->superDispatchService->getAccessToken();
 
         if (!$accessToken) {
-            $this->error('Failed to obtain access token.');
-            return self::FAILURE;
+            return $this->logAndReturnError('Failed to obtain access token.');
         }
 
         $order = $this->superDispatchService->fetchOrder($orderID, $accessToken);
 
         if (!$order) {
-            $this->error('Failed to fetch order data.');
-            return self::FAILURE;
+            return $this->logAndReturnError('Failed to fetch order data.');
         }
 
-        try {
-            $this->validateOrder($order['data']);
-            $this->info('Order data validated successfully.');
+        return $this->processOrderValidation($order['data'], $orderID);
+    }
 
+    private function processOrderValidation(array $order, string $orderID): int
+    {
+        try {
+            $errorRecord = $this->validateOrder($order);
+            $this->saveErrorRecord($errorRecord, $orderID);
+            $this->info('Order data validated successfully.');
             return self::SUCCESS;
         } catch (\Exception $e) {
-            Log::error('JSON structure error: ' . $e->getMessage(), ['orderID' => $orderID]);
-            $this->error('JSON structure error: ' . $e->getMessage());
-
-            $errorRecord = Error::firstOrNew(['order_id' => $orderID]);
-            $errorRecord->error_message = $e->getMessage();
-            $errorRecord->save();
-
-            return self::FAILURE;
+            return $this->logAndReturnError('JSON structure error: ' . $e->getMessage(), $orderID);
         }
     }
 
-    private function validateOrder(array $order): void
+    private function validateOrder(array $order): Error
     {
         $errorRecord = Error::firstOrNew(['order_id' => $order['id']]);
-        $hasErrors = false;
+        $this->setValidationFlags($errorRecord, $order);
+        return $errorRecord;
+    }
 
-        $errorRecord->err_loadid = $this->setErrorFlag($errorRecord->err_loadid, empty($order['vehicles'][0]['id']));
-        $errorRecord->err_client = $this->setErrorFlag($errorRecord->err_client, empty($order['customer']['name']));
-        $errorRecord->err_amount = $this->setErrorFlag($errorRecord->err_amount, $order['price'] < 100);
-        $errorRecord->err_attach = $this->setErrorFlag($errorRecord->err_attach, empty($order['pdf_bol_url']));
-        $errorRecord->err_pickaddress = $this->setErrorFlag($errorRecord->err_pickaddress, empty($order['pickup']['venue']['state']) || empty($order['pickup']['venue']['zip']));
-        $errorRecord->err_deladdress = $this->setErrorFlag($errorRecord->err_deladdress, empty($order['delivery']['venue']['state']) || empty($order['delivery']['venue']['zip']));
-        $errorRecord->err_email = $this->setErrorFlag($errorRecord->err_email, !empty($order['internal_notes']) && !$this->hasEmail($order['internal_notes']));
-        $errorRecord->err_pickbol = $this->setErrorFlag($errorRecord->err_pickbol, count($order['vehicles'][0]['photos']) < 20);
+    private function setValidationFlags(Error $errorRecord, array $order): void
+    {
+        $errorRecord->fill([
+            'err_loadid' => $this->isInvalid($order['vehicles'][0]['id'] ?? null),
+            'err_client' => $this->isInvalid($order['customer']['name'] ?? null),
+            'err_amount' => $order['price'] < 100,
+            'err_attach' => $this->isInvalid($order['pdf_bol_url'] ?? null),
+            'err_pickaddress' => $this->isAddressInvalid($order['pickup']['venue'] ?? []),
+            'err_deladdress' => $this->isAddressInvalid($order['delivery']['venue'] ?? []),
+            'err_email' => !$this->hasEmail($order['internal_notes'] ?? []),
+            'err_pickbol' => count($order['vehicles'][0]['photos'] ?? []) < 20,
+            'err_method' => $this->hasPaymentMethodError($order['vehicles'] ?? [])
+        ]);
+    }
 
-        $errorRecord->err_method = $this->setErrorFlag($errorRecord->err_method, $this->hasPaymentMethodError($order['vehicles']));
+    private function isInvalid($value): bool
+    {
+        return empty($value);
+    }
 
-        $errorRecord->err_count = $errorRecord->err_count + 1;
+    private function isAddressInvalid(array $venue): bool
+    {
+        return empty($venue['state']) || empty($venue['zip']);
+    }
 
-        $hasErrors = $this->hasErrors($errorRecord);
-
-        if ($hasErrors) {
-            $errorRecord->err_count = $errorRecord->err_count + 1;
+    private function saveErrorRecord(Error $errorRecord, string $orderID): void
+    {
+        if ($this->hasErrors($errorRecord)) {
+            $errorRecord->err_count++;
             $errorRecord->save();
             $this->error('Errors found during validation.');
         } else {
@@ -82,14 +92,11 @@ class ValidateOrderData extends Command
         }
     }
 
-    private function setErrorFlag($previousFlag, $currentErrorCondition): int
+    private function logAndReturnError(string $message, string $orderID = ''): int
     {
-        if ($currentErrorCondition) {
-            return 1;
-        } elseif ($previousFlag === 1) {
-            return 2;
-        }
-        return 0; // No error
+        Log::error($message, ['orderID' => $orderID]);
+        $this->error($message);
+        return self::FAILURE;
     }
 
     private function hasErrors($errorRecord): bool
