@@ -13,6 +13,8 @@ class ValidateOrderCommand extends Command
     protected string $name = "validate";
     protected string $description = "Validate order data";
 
+    const ERRORS_TABLE = 'errors';
+
     public function handle(): void
     {
         $orderID = $this->extractOrderID($this->getUpdate()->getMessage()->getText(true));
@@ -41,13 +43,17 @@ class ValidateOrderCommand extends Command
         return trim(str_replace('/validate', '', $messageText));
     }
 
-    private function fetchValidationResults(string $orderID)
+    private function fetchValidationResults(string $orderID): ?object
     {
-        return DB::table('errors')->where('order_id', $orderID)->first();
+        return DB::table(self::ERRORS_TABLE)->where('order_id', $orderID)->first();
     }
 
     protected function formatValidationResults($results): string
     {
+        if (empty($results)) {
+            return "No errors found for the specified Order ID.";
+        }
+
         $formattedMessage = "Validation results for Order ID: {$results->order_id}\n\n";
 
         $errorMessages = ErrorMessageService::getErrorMessages();
