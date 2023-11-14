@@ -53,7 +53,7 @@ class ValidateOrderCommand extends Command
         $this->getTelegram()->sendMessage([
             'chat_id' => $this->getUpdate()->getMessage()->getChat()->getId(),
             'text' => $message,
-            'parse_mode' => 'Markdown'
+            'parse_mode' => 'MarkdownV2'
         ]);
     }
 
