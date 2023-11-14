@@ -46,7 +46,10 @@ class ValidateOrderCommand extends Command
         ]);
 
         $message = $this->formatValidationResults($validationResults, $orderID);
-        $this->replyWithMessage(['text' => $message]);
+        $this->replyWithMessage([
+            'text' => $message,
+            'parse_mode' => 'Markdown'
+        ]);
     }
 
     private function fetchValidationResults(string $orderID): ?object
