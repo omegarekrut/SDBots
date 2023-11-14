@@ -63,7 +63,7 @@ class ValidateOrderCommand extends Command
             return "✅ No errors found for Order ID: {$orderID}";
         }
 
-        $formattedMessage = "🔍 Validation results for Order ID: {$results->order_id}\n⚡️⚡️⚡️\n";
+        $formattedMessage = "🔍 Validation results for Order ID: {$results->order_id}\n\n⚡️⚡️⚡️\n\n";
         $errorMessages = ErrorMessageService::getErrorMessages();
 
         foreach ($results as $key => $value) {
