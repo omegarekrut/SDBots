@@ -7,15 +7,15 @@ class ErrorMessageService
     public static function getErrorMessages(): array
     {
         return [
-            'err_loadid' => '**🆔 Empty or NULL Load ID**',
-            'err_client' => '**👥 There is no client**',
-            'err_amount' => '**💰 Price less than 100**',
-            'err_attach' => '**📎 PDF BOL URL is missing or empty**',
-            'err_pickaddress' => '**🏠 Pickup address state or zip is missing**',
-            'err_deladdress' => '**🚚 Delivery address state or zip is missing**',
-            'err_email' => '**📧 No email found in internal notes**',
-            'err_pickbol' => '**📷 Less than 20 photos in vehicle data**',
-            'err_method' => '**💳 Invalid payment method in vehicle data**',
+            'err_loadid' => '<b>🆔 Empty or NULL Load ID</b>',
+            'err_client' => '<b>👥 There is no client</b>',
+            'err_amount' => '<b>💰 Price less than 100</b>',
+            'err_attach' => '<b>📎 PDF BOL URL is missing or empty</b>',
+            'err_pickaddress' => '<b>🏠 Pickup address state or zip is missing</b>',
+            'err_deladdress' => '<b>🚚 Delivery address state or zip is missing</b>',
+            'err_email' => '<b>📧 No email found in internal notes</b>',
+            'err_pickbol' => '<b>📷 Less than 20 photos in vehicle data</b>',
+            'err_method' => '<b>💳 Invalid payment method in vehicle data</b>',
         ];
     }
 }
