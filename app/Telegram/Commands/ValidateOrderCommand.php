@@ -7,7 +7,6 @@ use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Telegram\Bot\Commands\Command;
-use Telegram\Bot\Exceptions\TelegramSDKException;
 
 class ValidateOrderCommand extends Command
 {
@@ -38,9 +37,6 @@ class ValidateOrderCommand extends Command
         return Artisan::call('validate:order-data', ['orderID' => $orderID]) === 0;
     }
 
-    /**
-     * @throws TelegramSDKException
-     */
     private function replyWithValidationResults(string $orderID): void
     {
         $validationResults = $this->fetchValidationResults($orderID);
@@ -50,8 +46,7 @@ class ValidateOrderCommand extends Command
         ]);
 
         $message = $this->formatValidationResults($validationResults, $orderID);
-        $this->getTelegram()->sendMessage([
-            'chat_id' => $this->getUpdate()->getMessage()->getChat()->getId(),
+        $this->replyWithMessage([
             'text' => $message,
             'parse_mode' => 'MarkdownV2'
         ]);
