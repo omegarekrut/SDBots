@@ -23,7 +23,7 @@ class ValidateOrderCommand extends Command
         if ($this->validateOrderData($orderID)) {
             $this->replyWithValidationResults($orderID);
         } else {
-            $this->replyWithMessage(['text' => "Failed to validate order data for Order ID: {$orderID}"]);
+            $this->replyWithMessage(['text' => "❌ Failed to validate order data for Order ID: {$orderID}"]);
         }
     }
 
@@ -60,7 +60,7 @@ class ValidateOrderCommand extends Command
             return "✅ No errors found for Order ID: {$orderID}";
         }
 
-        $formattedMessage = "🔍 Validation results for Order ID: {$results->order_id}\n\n";
+        $formattedMessage = "🔍 Validation results for Order ID: {$results->order_id}\n⚡️⚡️⚡️\n";
         $errorMessages = ErrorMessageService::getErrorMessages();
 
         foreach ($results as $key => $value) {

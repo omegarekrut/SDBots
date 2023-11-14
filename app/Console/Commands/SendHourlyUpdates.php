@@ -60,8 +60,8 @@ class SendHourlyUpdates extends Command
 
     private function formatErrors($errors): string
     {
-        $formattedMessage = "🕒 Hourly Update:\n\n";
-        $errorMessages = ErrorMessageService::getErrorMessages();;
+        $formattedMessage = "🕒 Hourly Update:\n⚡️⚡️⚡️\n";
+        $errorMessages = ErrorMessageService::getErrorMessages();
 
         foreach ($errors as $index => $error) {
             $formattedMessage .= $this->formatSingleError($error, $index, $errorMessages);
