@@ -57,15 +57,15 @@ class ValidateOrderCommand extends Command
     protected function formatValidationResults($results, string $orderID): string
     {
         if (empty($results)) {
-            return "No errors found for Order ID: {$orderID}";
+            return "✅ No errors found for Order ID: {$orderID}";
         }
 
-        $formattedMessage = "Validation results for Order ID: {$results->order_id}\n\n";
+        $formattedMessage = "🔍 Validation results for Order ID: {$results->order_id}\n\n";
         $errorMessages = ErrorMessageService::getErrorMessages();
 
         foreach ($results as $key => $value) {
             if ($this->isValidationErrorKey($key, $value)) {
-                $formattedMessage .= "{$errorMessages[$key]}: Failed\n";
+                $formattedMessage .= "{$errorMessages[$key]}: ❌ Failed\n";
             }
         }
 

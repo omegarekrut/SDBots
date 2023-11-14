@@ -60,7 +60,7 @@ class SendHourlyUpdates extends Command
 
     private function formatErrors($errors): string
     {
-        $formattedMessage = "";
+        $formattedMessage = "🕒 Hourly Update:\n\n";
         $errorMessages = ErrorMessageService::getErrorMessages();;
 
         foreach ($errors as $index => $error) {
@@ -72,7 +72,7 @@ class SendHourlyUpdates extends Command
 
     private function formatSingleError($error, int $index, array $errorMessages): string
     {
-        $formattedError = ($index + 1) . ". Order ID: {$error->order_id}:\n";
+        $formattedError = "🔔 " . ($index + 1) . ". Order ID: {$error->order_id}:\n";
         foreach ($errorMessages as $key => $message) {
             if ($error->$key == 1) {
                 $formattedError .= "- {$message}\n";
