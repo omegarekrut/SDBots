@@ -14,12 +14,10 @@ class WebhookController extends Controller
         $this->orderValidationService = $orderValidationService;
     }
 
-    public function validateOrder(Request $request): \Illuminate\Http\JsonResponse
+    public function validateOrder($id): \Illuminate\Http\JsonResponse
     {
-        $validatedData = $request->validate(['orderID' => 'required']);
-
         try {
-            $result = $this->orderValidationService->validateOrder($validatedData['orderID']);
+            $result = $this->orderValidationService->validateOrder($id);
             return response()->json($result);
         } catch (\Exception $e) {
             return response()->json(['error' => 'An error occurred during validation.'], 500);
