@@ -32,12 +32,15 @@ class OrderValidationService
      */
     public function validateOrder(array $data): array
     {
+        $accessToken = $this->superDispatchService->getAccessToken();
         $orderID = $data['order_id'];
         $carrierName = $data['carrier_name'] ?? 'Unknown Carrier';
         $chatIds = explode(',', str_replace(' ', '', $data['chat_id']));
 
+        $order = $this->superDispatchService->fetchOrder($orderID, $accessToken);
+
         try {
-            $errorRecord = $this->orderValidationLogicService->validateOrder(['id' => $orderID]);
+            $errorRecord = $this->orderValidationLogicService->validateOrder($order['data']);
 
             foreach ($chatIds as $chatId) {
                 $formattedMessage = $this->telegramValidationMessageService->formatValidationResults(
