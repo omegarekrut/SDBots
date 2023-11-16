@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Services\OrderValidationService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class WebhookController extends Controller
 {
@@ -21,6 +22,8 @@ class WebhookController extends Controller
             'carrier_name' => 'required|string',
             'order_id' => 'required|integer',
         ]);
+
+        Log::info('Validated data:', $validatedData);
 
         try {
             // Assuming you want to pass the entire validated data to the service
