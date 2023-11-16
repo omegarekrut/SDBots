@@ -16,6 +16,7 @@ class ValidateOrderData extends Command
     private SuperDispatchService $superDispatchService;
     private OrderValidationLogicService $orderValidationLogicService;
 
+
     public function __construct(SuperDispatchService $superDispatchService, OrderValidationLogicService $orderValidationLogicService)
     {
         parent::__construct();
@@ -38,21 +39,21 @@ class ValidateOrderData extends Command
             return $this->logAndReturnError('Failed to fetch order data or order data is incomplete.', $orderID);
         }
 
-        $errorRecord = $this->orderValidationLogicService->validateOrder($order['data']);
-
-        return $this->processErrorRecord($errorRecord, $orderID);
+        try {
+            $errorRecord = $this->orderValidationLogicService->validateOrder($order['data']);
+            $this->handleValidationResult($errorRecord);
+            return self::SUCCESS;
+        } catch (\Exception $e) {
+            return $this->logAndReturnError('Validation error: ' . $e->getMessage(), $orderID);
+        }
     }
 
-    private function processErrorRecord($errorRecord, string $orderID): int
+    private function handleValidationResult($errorRecord): void
     {
-        if ($this->hasErrors($errorRecord)) {
-            $errorRecord->err_count++;
-            $errorRecord->save();
+        if ($errorRecord->hasErrors()) {
             $this->error('Errors found during validation.');
-            return self::FAILURE;
         } else {
-            $this->info('No errors found after validation.');
-            return self::SUCCESS;
+            $this->info('Order data validated successfully.');
         }
     }
 
@@ -61,19 +62,5 @@ class ValidateOrderData extends Command
         Log::error($message, ['orderID' => $orderID]);
         $this->error($message);
         return self::FAILURE;
-    }
-
-
-    private function hasErrors($errorRecord): bool
-    {
-        return $errorRecord->err_loadid === 1 ||
-            $errorRecord->err_client === 1 ||
-            $errorRecord->err_amount === 1 ||
-            $errorRecord->err_attach === 1 ||
-            $errorRecord->err_pickaddress === 1 ||
-            $errorRecord->err_deladdress === 1 ||
-            $errorRecord->err_email === 1 ||
-            $errorRecord->err_pickbol === 1 ||
-            $errorRecord->err_method === 1;
     }
 }
