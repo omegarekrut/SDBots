@@ -16,13 +16,18 @@ class WebhookController extends Controller
 
     public function validateOrder(Request $request): \Illuminate\Http\JsonResponse
     {
-        $validatedData = $request->validate(['orderID' => 'required']);
+        $validatedData = $request->validate([
+            'chat_id' => 'required|string',
+            'carrier_name' => 'required|string',
+            'order_id' => 'required|integer',
+        ]);
 
         try {
-            $result = $this->orderValidationService->validateOrder($validatedData['orderID']);
+            // Assuming you want to pass the entire validated data to the service
+            $result = $this->orderValidationService->validateOrder($validatedData);
             return response()->json($result);
         } catch (\Exception $e) {
-            return response()->json(['error' => 'An error occurred during validation.'], 500);
+            return response()->json(['error' => 'An error occurred during validation: ' . $e->getMessage()], 500);
         }
     }
 }
