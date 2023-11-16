@@ -9,6 +9,12 @@ use Telegram\Bot\Laravel\Facades\Telegram;
 
 class OrderValidationService
 {
+    private TelegramValidationMessageService $telegramValidationMessageService;
+
+    public function __construct(TelegramValidationMessageService $telegramValidationMessageService)
+    {
+        $this->telegramValidationMessageService = $telegramValidationMessageService;
+    }
     /**
      * @throws Exception
      */
@@ -23,7 +29,11 @@ class OrderValidationService
             $resultMessage = $exitCode === 0 ? 'Validation successful.' : 'Validation failed.';
 
             foreach ($chatIds as $chatId) {
-                $formattedMessage = $this->formatMessageForChat($resultMessage, $carrierName);
+                $formattedMessage = $this->telegramValidationMessageService->formatValidationResults(
+                    $resultMessage,
+                    $orderID,
+                    $carrierName
+                );
                 $this->sendMessageToChat(trim($chatId), $formattedMessage);
             }
 
@@ -37,7 +47,7 @@ class OrderValidationService
         }
     }
 
-    private function sendMessageToChat($chatId, $message): void
+    private function sendMessageToChat(string $chatId, string $message): void
     {
         try {
             Telegram::sendMessage([
