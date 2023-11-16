@@ -2,7 +2,8 @@
 
 namespace App\Telegram\Commands;
 
-use App\Services\ErrorMessageService;
+use App\Services\TelegramValidationMessageService;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -40,12 +41,11 @@ class ValidateOrderCommand extends Command
     private function replyWithValidationResults(string $orderID): void
     {
         $validationResults = $this->fetchValidationResults($orderID);
-        Log::info('Fetched validation results', [
-            'orderID' => $orderID,
-            'validationResults' => $validationResults
-        ]);
+        Log::info('Fetched validation results', ['orderID' => $orderID, 'validationResults' => $validationResults]);
 
-        $message = $this->formatValidationResults($validationResults, $orderID);
+        $messageFormatter = App::make(TelegramValidationMessageService::class);
+        $message = $messageFormatter->formatValidationResults($validationResults, $orderID);
+
         $this->replyWithMessage([
             'text' => $message,
             'parse_mode' => 'MarkdownV2'
@@ -55,38 +55,5 @@ class ValidateOrderCommand extends Command
     private function fetchValidationResults(string $orderID): ?object
     {
         return DB::table(self::ERRORS_TABLE)->where('order_id', $orderID)->first();
-    }
-
-    protected function formatValidationResults($results, string $orderID): string
-    {
-        if (empty($results)) {
-            return "✅ No errors found for Order ID: {$orderID}";
-        }
-
-        $formattedMessage = "🔍 Validation results for Order ID: {$results->order_id}\n\n⚡️⚡️⚡️\n\n";
-        $errorMessages = ErrorMessageService::getErrorMessages();
-
-        foreach ($results as $key => $value) {
-            if ($this->isValidationErrorKey($key, $value)) {
-                $formattedMessage .= "{$errorMessages[$key]}: ❌ Failed\n";
-            }
-        }
-
-        return $this->appendErrorMessageOrFinalize($formattedMessage, $results);
-    }
-
-    private function isValidationErrorKey(string $key, $value): bool
-    {
-        return str_starts_with($key, 'err_') && $key !== 'err_count' && $value == 1;
-    }
-
-    private function appendErrorMessageOrFinalize(string $message, $results): string
-    {
-        if (!empty($results->error_message)) {
-            return $message . "\nError Message: " . $results->error_message;
-        }
-
-        return trim($message) == "Validation results for Order ID: {$results->order_id}\n\n" ?
-            "No errors found for Order ID: {$results->order_id}" : $message;
     }
 }
