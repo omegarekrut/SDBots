@@ -9,12 +9,17 @@ use Telegram\Bot\Laravel\Facades\Telegram;
 
 class OrderValidationService
 {
+    private OrderValidationLogicService $orderValidationLogicService;
     private TelegramValidationMessageService $telegramValidationMessageService;
 
-    public function __construct(TelegramValidationMessageService $telegramValidationMessageService)
-    {
+    public function __construct(
+        OrderValidationLogicService $orderValidationLogicService,
+        TelegramValidationMessageService $telegramValidationMessageService
+    ) {
+        $this->orderValidationLogicService = $orderValidationLogicService;
         $this->telegramValidationMessageService = $telegramValidationMessageService;
     }
+
     /**
      * @throws Exception
      */
@@ -25,12 +30,11 @@ class OrderValidationService
         $chatIds = explode(',', str_replace(' ', '', $data['chat_id']));
 
         try {
-            $exitCode = Artisan::call('validate:order-data', ['orderID' => $orderID]);
-            $resultMessage = $exitCode === 0 ? 'Validation successful.' : 'Validation failed.';
+            $errorRecord = $this->orderValidationLogicService->validateOrder(['id' => $orderID, /* other order data */]);
 
             foreach ($chatIds as $chatId) {
                 $formattedMessage = $this->telegramValidationMessageService->formatValidationResults(
-                    $resultMessage,
+                    $errorRecord->toArray(),
                     $orderID,
                     $carrierName
                 );
@@ -38,8 +42,8 @@ class OrderValidationService
             }
 
             return [
-                'success' => $exitCode === 0,
-                'message' => $resultMessage
+                'success' => !$errorRecord->hasErrors(),
+                'message' => 'Validation processed.'
             ];
         } catch (Exception $e) {
             Log::error('Error in order validation: ' . $e->getMessage());
