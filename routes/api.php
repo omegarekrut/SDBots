@@ -25,5 +25,5 @@ Route::get('/bot/setup-webhook', function () {
 
 Route::post('/bot/webhook', [\App\Http\Controllers\BotController::class, 'handleRequest']);
 
-Route::get('/webhook/validate-order/{id}', [\App\Http\Controllers\WebhookController::class, 'validateOrder']);
+Route::post('/webhook/validate-order', [\App\Http\Controllers\WebhookController::class, 'validateOrder']);
 
