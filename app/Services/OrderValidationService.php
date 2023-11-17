@@ -64,33 +64,6 @@ class OrderValidationService
         }
     }
 
-    /**
-     * Validates order with data retrieval.
-     *
-     * @param int $orderID
-     * @param array $additionalData
-     * @return array
-     * @throws Exception
-     */
-    public function validateOrderWithRetrieval(int $orderID, array $additionalData): array
-    {
-        $accessToken = $this->superDispatchService->getAccessToken();
-
-        if (!$accessToken) {
-            throw new Exception('Failed to obtain access token.');
-        }
-
-        $order = $this->superDispatchService->fetchOrder($orderID, $accessToken);
-
-        if (!$order || !isset($order['data'])) {
-            throw new Exception('Failed to fetch order data or order data is incomplete.');
-        }
-
-        $orderData = array_merge($order['data'], $additionalData);
-
-        return $this->validateOrder($orderData);
-    }
-
     private function sendMessageToChat(string $chatId, string $message): void
     {
         try {
