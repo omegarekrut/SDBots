@@ -12,8 +12,6 @@ class TelegramValidationMessageService
             return "✅ No errors found for Order ID: {$orderID}";
         }
 
-        Log::info('Order ID is ', $results->order_id);
-
         $formattedMessage = "🔍 Validation results for Order ID: {$results->order_id}\n\n⚡️⚡️⚡️\n\nCompany name: {$carrierName}";
         $errorMessages = ErrorMessageService::getErrorMessages();
 
