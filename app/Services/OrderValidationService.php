@@ -39,10 +39,11 @@ class OrderValidationService
         $chatIds = explode(',', str_replace(' ', '', $data['chat_id']));
 
         $order = $this->superDispatchService->fetchOrder($orderID, $accessToken);
+        $attachments = $this->superDispatchService->fetchAttachments($orderID, $accessToken);
         $orderNumber = $order['data']['number'] ?? 'Unknown';
 
         try {
-            $errorRecord = $this->orderValidationLogicService->validateOrder($order['data']);
+            $errorRecord = $this->orderValidationLogicService->validateOrder($order['data'], $attachments['data']);
 
             Log::info('Order validation result', ['errorRecord' => $errorRecord->toArray()]);
 

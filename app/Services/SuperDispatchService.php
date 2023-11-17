@@ -26,4 +26,14 @@ class SuperDispatchService
 
         return $response->successful() ? $response->json() : null;
     }
+
+    public function fetchAttachments(string $orderID, string $accessToken): ?array
+    {
+        $response = Http::withHeaders([
+            'Authorization' => "Bearer {$accessToken}",
+            'Content-Type' => 'application/json'
+        ])->get("https://carrier.superdispatch.com/order_attachments/{$orderID}/");
+
+        return $response->successful() ? $response->json() : null;
+    }
 }
