@@ -9,7 +9,7 @@ class TelegramValidationMessageService
 {
     public function formatValidationResults(Error $errorObject, string $orderID, string $carrierName): string
     {
-        $formattedMessage = "🔍 Validation results for Order ID: {$errorObject->order_id}\n\n⚡️⚡️⚡️\n\nCompany name: {$carrierName}";
+        $formattedMessage = "🔍 Validation results for Order ID: {$errorObject->order_id}\n\n⚡️⚡️⚡️\n\n🏢 *Carrier name:* {$carrierName}\n\n";
         $errorMessages = ErrorMessageService::getErrorMessages();
 
         foreach ($errorObject->getAttributes() as $key => $value) {
