@@ -73,10 +73,19 @@ class OrderValidationService
             Telegram::sendMessage([
                 'parse_mode' => 'MarkdownV2',
                 'chat_id' => $chatId,
-                'text' => $message,
+                'text' => $this->escapeMarkdownV2Characters($message),
             ]);
         } catch (Exception $e) {
             Log::error("Failed to send message to Telegram chat (ID: $chatId): " . $e->getMessage());
         }
+    }
+
+    private function escapeMarkdownV2Characters(string $text): string
+    {
+        return str_replace(
+            ['_', '*', '[', ']', '(', ')', '~', '`', '>', '#', '+', '-', '=', '|', '{', '}', '.', '!'],
+            ['\_', '\*', '\[', '\]', '\(', '\)', '\~', '\`', '\>', '\#', '\+', '\-', '\=', '\|', '\{', '\}', '\.', '\!'],
+            $text
+        );
     }
 }

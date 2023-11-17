@@ -63,4 +63,5 @@ class ValidateOrderData extends Command
         $this->error($message);
         return self::FAILURE;
     }
+
 }
