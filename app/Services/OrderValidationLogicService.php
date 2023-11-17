@@ -20,8 +20,10 @@ class OrderValidationLogicService
             'err_client' => $this->isInvalid($order['customer']['name'] ?? null),
             'err_amount' => $order['price'] < 100,
             'err_attach' => $this->hasValidPdfAttachment($attachments),
-            'err_pickaddress' => $this->isAddressInvalid($order['pickup']['venue'] ?? []),
-            'err_deladdress' => $this->isAddressInvalid($order['delivery']['venue'] ?? []),
+            'err_pickaddress' => $this->isAddressInvalid($order['pickup']['venue']['address'] ?? null),
+            'err_pickaddress_zip' => $this->isZipInvalid($order['pickup']['venue']['zip'] ?? null),
+            'err_deladdress' => $this->isAddressInvalid($order['delivery']['venue']['address'] ?? null),
+            'err_deladdress_zip' => $this->isZipInvalid($order['delivery']['venue']['zip'] ?? null),
             'err_email' => !$this->hasEmail($order['internal_notes'] ?? []),
             'err_pickbol' => count($order['vehicles'][0]['photos'] ?? []) < 20, //$this->isInvalid($order['pdf_bol_url'] ?? null)
             'err_method' => $this->hasPaymentMethodError($order['vehicles'] ?? [])
@@ -33,9 +35,14 @@ class OrderValidationLogicService
         return empty($value);
     }
 
-    private function isAddressInvalid(array $venue): bool
+    private function isAddressInvalid(?string $address): bool
     {
-        return empty($venue['state']) || empty($venue['zip']);
+        return empty($address);
+    }
+
+    private function isZipInvalid(?string $zip): bool
+    {
+        return empty($zip);
     }
 
     private function hasPaymentMethodError(array $vehicles): bool
