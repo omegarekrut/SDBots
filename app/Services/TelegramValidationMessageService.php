@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use Illuminate\Support\Facades\Log;
+
 class TelegramValidationMessageService
 {
     public function formatValidationResults($results, int $orderID, string $carrierName): string
@@ -9,6 +11,8 @@ class TelegramValidationMessageService
         if (empty($results)) {
             return "✅ No errors found for Order ID: {$orderID}";
         }
+
+        Log::info('Order ID is ', $results->order_id);
 
         $formattedMessage = "🔍 Validation results for Order ID: {$results->order_id}\n\n⚡️⚡️⚡️\n\nCompany name: {$carrierName}";
         $errorMessages = ErrorMessageService::getErrorMessages();
