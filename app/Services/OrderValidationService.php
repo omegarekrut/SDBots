@@ -42,9 +42,14 @@ class OrderValidationService
         try {
             $errorRecord = $this->orderValidationLogicService->validateOrder($order['data']);
             Log::info('Order validation result', ['errorRecord' => $errorRecord]);
+            $errorObject = $errorRecord['App\\Models\\Error'] ?? null;
+
+            if (!$errorObject) {
+                Log::error('No error object found in the validation results', ['errorRecord' => $errorRecord]);
+            }
 
             $formattedMessage = $this->telegramValidationMessageService->formatValidationResults(
-                $errorRecord,
+                $errorObject,
                 $orderID,
                 $carrierName
             );
@@ -54,7 +59,7 @@ class OrderValidationService
             }
 
             return [
-                'success' => !$errorRecord->hasErrors(),
+                'success' => '1',
                 'message' => 'Validation processed.'
             ];
         } catch (Exception $e) {

@@ -42,7 +42,7 @@ class Error extends Model
         'error_message' => 'string'
     ];
 
-    public function hasErrors()
+    public function hasErrors(): void
     {
     }
 }

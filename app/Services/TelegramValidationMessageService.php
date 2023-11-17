@@ -8,22 +8,22 @@ class TelegramValidationMessageService
 {
     public function formatValidationResults($results, string $orderID, string $carrierName): string
     {
-        $errorObject = $results['App\\Models\\Error'] ?? null;
-
-        if (!$errorObject) {
+        if (empty($results)) {
             return "✅ No errors found for Order ID: {$orderID}";
         }
+        Log::info('Validation results received', ['results' => $results]);
 
-        $formattedMessage = "🔍 Validation results for Order ID: {$errorObject->order_id}\n\n⚡️⚡️⚡️\n\nCompany name: {$carrierName}";
+        $formattedMessage = "🔍 Validation results for Order ID: {$results->order_id}\n\n⚡️⚡️⚡️\n\nCompany name: {$carrierName}";
         $errorMessages = ErrorMessageService::getErrorMessages();
+        Log::info('Formatted message', ['message' => $formattedMessage]);
 
-        foreach ($errorObject as $key => $value) {
+        foreach ($results as $key => $value) {
             if ($this->isValidationErrorKey($key, $value)) {
                 $formattedMessage .= "{$errorMessages[$key]}: ❌ Failed\n";
             }
         }
 
-        return $this->appendErrorMessageOrFinalize($formattedMessage, $errorObject);
+        return $this->appendErrorMessageOrFinalize($formattedMessage, $results);
     }
 
     private function isValidationErrorKey(string $key, $value): bool
