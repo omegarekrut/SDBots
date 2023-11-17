@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\Error;
 use Exception;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Log;
@@ -41,15 +42,15 @@ class OrderValidationService
 
         try {
             $errorRecord = $this->orderValidationLogicService->validateOrder($order['data']);
-            Log::info('Order validation result', ['errorRecord' => $errorRecord]);
-            $errorObject = $errorRecord['App\\Models\\Error'] ?? null;
 
-            if (!$errorObject) {
-                Log::error('No error object found in the validation results', ['errorRecord' => $errorRecord]);
+            if (!$errorRecord instanceof Error) {
+                Log::error('Validation did not return an Error object', ['errorRecord' => $errorRecord]);
             }
 
+            Log::info('Order validation result', ['errorRecord' => $errorRecord->toArray()]);
+
             $formattedMessage = $this->telegramValidationMessageService->formatValidationResults(
-                $errorObject,
+                $errorRecord,
                 $orderID,
                 $carrierName
             );

@@ -2,28 +2,23 @@
 
 namespace App\Services;
 
+use App\Models\Error;
 use Illuminate\Support\Facades\Log;
 
 class TelegramValidationMessageService
 {
-    public function formatValidationResults($results, string $orderID, string $carrierName): string
+    public function formatValidationResults(Error $errorObject, string $orderID, string $carrierName): string
     {
-        if (empty($results)) {
-            return "✅ No errors found for Order ID: {$orderID}";
-        }
-        Log::info('Validation results received', ['results' => $results]);
-
-        $formattedMessage = "🔍 Validation results for Order ID: {$results->order_id}\n\n⚡️⚡️⚡️\n\nCompany name: {$carrierName}";
+        $formattedMessage = "🔍 Validation results for Order ID: {$errorObject->order_id}\n\n⚡️⚡️⚡️\n\nCompany name: {$carrierName}";
         $errorMessages = ErrorMessageService::getErrorMessages();
-        Log::info('Formatted message', ['message' => $formattedMessage]);
 
-        foreach ($results as $key => $value) {
+        foreach ($errorObject->getAttributes() as $key => $value) {
             if ($this->isValidationErrorKey($key, $value)) {
-                $formattedMessage .= "{$errorMessages[$key]}: ❌ Failed\n";
+                $formattedMessage .= "\n{$errorMessages[$key]}: ❌ Failed";
             }
         }
 
-        return $this->appendErrorMessageOrFinalize($formattedMessage, $results);
+        return $this->appendErrorMessageOrFinalize($formattedMessage, $errorObject);
     }
 
     private function isValidationErrorKey(string $key, $value): bool
