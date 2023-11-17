@@ -39,6 +39,7 @@ class OrderValidationService
         $chatIds = explode(',', str_replace(' ', '', $data['chat_id']));
 
         $order = $this->superDispatchService->fetchOrder($orderID, $accessToken);
+        $orderNumber = $order['data']['number'] ?? 'Unknown';
 
         try {
             $errorRecord = $this->orderValidationLogicService->validateOrder($order['data']);
@@ -48,7 +49,8 @@ class OrderValidationService
             $formattedMessage = $this->telegramValidationMessageService->formatValidationResults(
                 $errorRecord,
                 $orderID,
-                $carrierName
+                $carrierName,
+                $orderNumber
             );
 
             foreach ($chatIds as $chatId) {

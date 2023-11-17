@@ -7,9 +7,9 @@ use Illuminate\Support\Facades\Log;
 
 class TelegramValidationMessageService
 {
-    public function formatValidationResults(Error $errorObject, string $orderID, string $carrierName): string
+    public function formatValidationResults(Error $errorObject, string $orderID, string $carrierName, string $orderNumber): string
     {
-        $formattedMessage = "🔍 Validation results for Order ID: {$errorObject->order_id}\n\n⚡️⚡️⚡️\n\n🏢 *Carrier name:* {$carrierName}\n\n";
+        $formattedMessage = "🔍 Validation results for Order ID: {$errorObject->order_id}\n\n⚡️⚡️⚡️\n\n🏢 *Carrier name:* {$carrierName}\n📄 *Load ID:* {$orderNumber}";
         $errorMessages = ErrorMessageService::getErrorMessages();
 
         foreach ($errorObject->getAttributes() as $key => $value) {
