@@ -43,10 +43,6 @@ class OrderValidationService
         try {
             $errorRecord = $this->orderValidationLogicService->validateOrder($order['data']);
 
-            if (!$errorRecord instanceof Error) {
-                Log::error('Validation did not return an Error object', ['errorRecord' => $errorRecord]);
-            }
-
             Log::info('Order validation result', ['errorRecord' => $errorRecord->toArray()]);
 
             $formattedMessage = $this->telegramValidationMessageService->formatValidationResults(
@@ -73,8 +69,9 @@ class OrderValidationService
     {
         try {
             Telegram::sendMessage([
+                'parse_mode' => 'MarkdownV2',
                 'chat_id' => $chatId,
-                'text' => $message
+                'text' => $message,
             ]);
         } catch (Exception $e) {
             Log::error("Failed to send message to Telegram chat (ID: $chatId): " . $e->getMessage());
