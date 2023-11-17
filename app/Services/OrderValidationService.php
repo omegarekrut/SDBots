@@ -47,15 +47,17 @@ class OrderValidationService
 
             Log::info('Order validation result', ['errorRecord' => $errorRecord->toArray()]);
 
-            $formattedMessage = $this->telegramValidationMessageService->formatValidationResults(
-                $errorRecord,
-                $orderID,
-                $carrierName,
-                $orderNumber
-            );
+            if ($this->hasValidationErrors($errorRecord)) {
+                $formattedMessage = $this->telegramValidationMessageService->formatValidationResults(
+                    $errorRecord,
+                    $orderID,
+                    $carrierName,
+                    $orderNumber
+                );
 
-            foreach ($chatIds as $chatId) {
-                $this->sendMessageToChat(trim($chatId), $formattedMessage);
+                foreach ($chatIds as $chatId) {
+                    $this->sendMessageToChat(trim($chatId), $formattedMessage);
+                }
             }
 
             return [
@@ -66,6 +68,16 @@ class OrderValidationService
             Log::error('Error in order validation: ' . $e->getMessage());
             throw $e;
         }
+    }
+
+    private function hasValidationErrors(Error $errorRecord): bool
+    {
+        foreach ($errorRecord->getAttributes() as $key => $value) {
+            if (str_starts_with($key, 'err_') && $value == 1) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private function sendMessageToChat(string $chatId, string $message): void
