@@ -41,4 +41,8 @@ class Error extends Model
         'err_count' => 'integer',
         'error_message' => 'string'
     ];
+
+    public function hasErrors()
+    {
+    }
 }
