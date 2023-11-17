@@ -9,7 +9,7 @@ class TelegramValidationMessageService
 {
     public function formatValidationResults(Error $errorObject, string $orderID, string $carrierName, string $orderNumber): string
     {
-        $formattedMessage = "🔍 Validation results for Order ID: {$errorObject->order_id}\n\n⚡️⚡️⚡️\n\n🏢 *Carrier name:* {$carrierName}\n📄 *Load ID:* {$orderNumber}";
+        $formattedMessage = "🔍 Validation results for Order ID: {$errorObject->order_id}\n\n⚡️⚡️⚡️\n\n🏢 *Carrier name:* {$carrierName}\n📄 *Load ID:* {$this->escapeMarkdownV2Characters($orderNumber)}";
         $errorMessages = ErrorMessageService::getErrorMessages();
 
         foreach ($errorObject->getAttributes() as $key => $value) {
@@ -34,5 +34,14 @@ class TelegramValidationMessageService
 
         return trim($message) == "Validation results for Order ID: {$results->order_id}\n\n" ?
             "No errors found for Order ID: {$results->order_id}" : $message;
+    }
+
+    private function escapeMarkdownV2Characters(string $text): string
+    {
+        return str_replace(
+            ['_', '*', '[', ']', '(', ')', '~', '`', '>', '#', '+', '-', '=', '|', '{', '}', '.', '!'],
+            ['\_', '\*', '\[', '\]', '\(', '\)', '\~', '\`', '\>', '\#', '\+', '\-', '\=', '\|', '\{', '\}', '\.', '\!'],
+            $text
+        );
     }
 }
