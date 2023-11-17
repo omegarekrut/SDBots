@@ -32,7 +32,7 @@ class SuperDispatchService
         $response = Http::withHeaders([
             'Authorization' => "Bearer {$accessToken}",
             'Content-Type' => 'application/json'
-        ])->get("https://carrier.superdispatch.com/orders/{$orderID}/attachments/");
+        ])->get("https://carrier.superdispatch.com/v1/orders/{$orderID}/attachments/");
 
         return $response->successful() ? $response->json() : null;
     }
