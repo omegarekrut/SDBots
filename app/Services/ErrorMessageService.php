@@ -10,7 +10,7 @@ class ErrorMessageService
             'err_loadid' => '🆔 *Empty or NULL Load ID*',
             'err_client' => '👥 *There is no client*',
             'err_amount' => '💰 *Price less than 100*',
-            'err_attach' => '📎 *PDF is missing or empty /(sidpach sheet/)*',
+            'err_attach' => '📎 *PDF is missing or empty \(sidpach sheet\)*',
             'err_pickaddress' => '🏠 *Pickup address is missing*',
             'err_pickaddress_zip' => '🏠 *Pickup address zip code is missing*',
             'err_deladdress' => '🚚 *Delivery address is missing*',
