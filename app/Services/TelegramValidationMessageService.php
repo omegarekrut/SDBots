@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Log;
 
 class TelegramValidationMessageService
 {
-    public function formatValidationResults($results, int $orderID, string $carrierName): string
+    public function formatValidationResults($results, string $orderID, string $carrierName): string
     {
         if (empty($results)) {
             return "✅ No errors found for Order ID: {$orderID}";
