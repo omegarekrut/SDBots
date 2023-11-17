@@ -41,13 +41,13 @@ class OrderValidationService
 
         try {
             $errorRecord = $this->orderValidationLogicService->validateOrder($order['data']);
+            $formattedMessage = $this->telegramValidationMessageService->formatValidationResults(
+                $errorRecord->toArray(),
+                $orderID,
+                $carrierName
+            );
 
             foreach ($chatIds as $chatId) {
-                $formattedMessage = $this->telegramValidationMessageService->formatValidationResults(
-                    $errorRecord->toArray(),
-                    $orderID,
-                    $carrierName
-                );
                 $this->sendMessageToChat(trim($chatId), $formattedMessage);
             }
 

@@ -26,7 +26,6 @@ class WebhookController extends Controller
         Log::info('Validated data:', $validatedData);
 
         try {
-            // Assuming you want to pass the entire validated data to the service
             $result = $this->orderValidationService->validateOrder($validatedData);
             return response()->json($result);
         } catch (\Exception $e) {

@@ -41,18 +41,4 @@ class Error extends Model
         'err_count' => 'integer',
         'error_message' => 'string'
     ];
-
-    public function hasErrors(): bool
-    {
-        return $this->err_loadid === 1 ||
-            $this->err_client === 1 ||
-            $this->err_amount === 1 ||
-            $this->err_attach === 1 ||
-            $this->err_pickaddress === 1 ||
-            $this->err_deladdress === 1 ||
-            $this->err_email === 1 ||
-            $this->err_pickbol === 1 ||
-            $this->err_pdelbol === 1 ||
-            $this->err_method === 1;
-    }
 }
