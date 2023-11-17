@@ -11,9 +11,11 @@ class TelegramValidationMessageService
         if (empty($results)) {
             return "✅ No errors found for Order ID: {$orderID}";
         }
+        Log::info('Validation results received', ['results' => $results]);
 
         $formattedMessage = "🔍 Validation results for Order ID: {$results->order_id}\n\n⚡️⚡️⚡️\n\nCompany name: {$carrierName}";
         $errorMessages = ErrorMessageService::getErrorMessages();
+        Log::info('Formatted message', ['message' => $formattedMessage]);
 
         foreach ($results as $key => $value) {
             if ($this->isValidationErrorKey($key, $value)) {
