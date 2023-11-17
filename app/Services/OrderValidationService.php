@@ -41,8 +41,11 @@ class OrderValidationService
 
         try {
             $errorRecord = $this->orderValidationLogicService->validateOrder($order['data']);
+            $logData = json_encode($errorRecord);
+            Log::info('Order validation result', ['errorRecord' => $logData]);
+
             $formattedMessage = $this->telegramValidationMessageService->formatValidationResults(
-                $errorRecord->toArray(),
+                $logData,
                 $orderID,
                 $carrierName
             );
