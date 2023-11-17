@@ -6,6 +6,8 @@ use App\Models\Error;
 
 class OrderValidationLogicService
 {
+    const PAYMENT_METHODS = ['Factoring', 'Other', 'Comcheck', 'ACH'];
+
     public function validateOrder(array $order, array $attachments): Error
     {
         $errorRecord = Error::firstOrNew(['order_id' => $order['id']]);
@@ -47,9 +49,8 @@ class OrderValidationLogicService
 
     private function hasPaymentMethodError(array $vehicles): bool
     {
-        $paymentMethods = ['Factoring', 'Other', 'Comcheck', 'ACH'];
         foreach ($vehicles as $vehicle) {
-            foreach ($paymentMethods as $method) {
+            foreach (self::PAYMENT_METHODS as $method) {
                 if (isset($vehicle[$method])) {
                     return true;
                 }
