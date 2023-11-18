@@ -1,0 +1,1 @@
+* * * * * cd /var/www/dev41_devzon_usr/data/www/dev41.devzone.bio/ && php artisan schedule:run >> /dev/null 2>&1

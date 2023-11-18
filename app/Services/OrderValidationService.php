@@ -33,7 +33,7 @@ class OrderValidationService
      */
     public function validateOrder(array $data): array
     {
-        $accessToken = $this->superDispatchService->getAccessToken();
+        $accessToken = $this->superDispatchService->getAccessToken($data['carrier_name']);
         $orderID = $data['order_id'];
         $carrierName = $data['carrier_name'] ?? 'Unknown Carrier';
         $chatIds = explode(',', str_replace(' ', '', $data['chat_id']));

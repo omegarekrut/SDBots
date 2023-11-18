@@ -38,7 +38,7 @@ class SendHourlyUpdates extends Command
                 Telegram::sendMessage([
                     'chat_id' => $subscriber->telegram_user_id,
                     'text' => $message,
-                    'parse_mode' => 'Markdown'
+                    'parse_mode' => 'MarkdownV2'
                 ]);
             }
         }

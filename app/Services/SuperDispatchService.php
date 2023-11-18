@@ -2,16 +2,23 @@
 
 namespace App\Services;
 
+use App\Models\SuperDispatchConfig;
 use Illuminate\Support\Facades\Http;
 
 class SuperDispatchService
 {
-    public function getAccessToken(): ?string
+    public function getAccessToken(string $carrierName): ?string
     {
+        $config = SuperDispatchConfig::where('api_name', $carrierName)->first();
+
+        if (!$config) {
+            return null;
+        }
+
         $response = Http::asForm()->post('https://carrier.superdispatch.com/oauth/token/', [
             'grant_type' => 'client_credentials',
-            'client_id' => env('SUPERDISPATCH_CLIENT_ID'),
-            'client_secret' => env('SUPERDISPATCH_CLIENT_SECRET')
+            'client_id' => $config->client_id,
+            'client_secret' => $config->client_secret
         ]);
 
         return $response->successful() ? $response->json()['access_token'] : null;
