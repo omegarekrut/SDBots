@@ -34,8 +34,17 @@ class BotController extends Controller
     public function handleRequest(): string
     {
         $update = Telegram::commandsHandler(true);
-        // Your code to handle the update here
 
         return 'ok';
+    }
+
+    public function getWebhookInfo(): JsonResponse
+    {
+        try {
+            $response = Telegram::getWebhookInfo();
+            return response()->json($response);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
     }
 }
