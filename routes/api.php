@@ -20,8 +20,8 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::get('/bot/webhook-info', [\App\Http\Controllers\BotController::class, 'getWebhookInfo']);
-
 Route::post('/bot/webhook', [\App\Http\Controllers\BotController::class, 'handleRequest']);
+Route::post('/bot/set-webhook', [\App\Http\Controllers\BotController::class, 'setWebhook']);
 
 Route::post('/webhook/validate-order', [\App\Http\Controllers\WebhookController::class, 'validateOrder']);
 

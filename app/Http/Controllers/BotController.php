@@ -47,4 +47,16 @@ class BotController extends Controller
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
+
+    public function setWebhook(): JsonResponse
+    {
+        $webhookUrl = env('TELEGRAM_WEBHOOK_URL');
+
+        try {
+            $response = Telegram::setWebhook(['url' => $webhookUrl]);
+            return response()->json($response);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
 }
