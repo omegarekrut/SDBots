@@ -11,7 +11,9 @@ class OrderValidationLogicService
 
     public function validateOrder(array $order, array $attachments): Error
     {
-        Log::info('Payment terms', ['terms' => $order['payments']['terms'] ?? 'Not set']);
+        Log::info('Payment terms', ['terms' => $order['payment']['terms'] ?? 'Not set']);
+        Log::info('Order array', ['order' => $order]);
+
 
         $errorRecord = Error::firstOrNew(['order_id' => $order['id']]);
         $this->setValidationFlags($errorRecord, $order, $attachments);
@@ -31,7 +33,7 @@ class OrderValidationLogicService
             'err_deladdress_zip' => $this->isZipInvalid($order['delivery']['venue']['zip'] ?? null),
             'err_email' => !$this->hasEmail($order['internal_notes'] ?? []),
             'err_pickbol' => count($order['vehicles'][0]['photos'] ?? []) < 20, //$this->isInvalid($order['pdf_bol_url'] ?? null)
-            'err_method' => $this->hasPaymentMethodError($order['payments']['terms'] ?? null)
+            'err_method' => $this->hasPaymentMethodError($order['payment']['terms'] ?? null)
         ]);
     }
 
