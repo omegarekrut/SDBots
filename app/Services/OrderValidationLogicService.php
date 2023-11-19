@@ -29,7 +29,7 @@ class OrderValidationLogicService
             'err_deladdress_zip' => $this->isZipInvalid($order['delivery']['venue']['zip'] ?? null),
             'err_email' => !$this->hasEmail($order['internal_notes'] ?? []),
             'err_pickbol' => count($order['vehicles'][0]['photos'] ?? []) < 20, //$this->isInvalid($order['pdf_bol_url'] ?? null)
-            'err_method' => $this->hasPaymentMethodError($order['payments']['terms'] ?? [])
+            'err_method' => $this->hasPaymentMethodError($order['payments']['terms'] ?? '')
         ]);
     }
 
@@ -48,16 +48,6 @@ class OrderValidationLogicService
         return empty($zip);
     }
 
-    private function hasPaymentMethodError(string $terms): bool
-    {
-        foreach (self::PAYMENT_METHODS as $method) {
-            if (str_contains(strtolower($terms), strtolower($method))) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     private function hasValidPdfAttachment(array $attachments): bool
     {
         foreach ($attachments as $attachment) {
@@ -68,6 +58,17 @@ class OrderValidationLogicService
         }
         return true;
     }
+
+    private function hasPaymentMethodError(?string $terms): bool
+    {
+        foreach (self::PAYMENT_METHODS as $method) {
+            if (str_contains(strtolower($terms), strtolower($method))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 
     private function hasEmail(array $notes): bool
     {
