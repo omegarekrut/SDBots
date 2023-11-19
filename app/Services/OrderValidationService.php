@@ -14,6 +14,8 @@ class OrderValidationService
     private TelegramValidationMessageService $telegramValidationMessageService;
     private SuperDispatchService $superDispatchService;
 
+    const EXCLUDE_FLAG = "err_count";
+
     public function __construct(
         OrderValidationLogicService $orderValidationLogicService,
         TelegramValidationMessageService $telegramValidationMessageService,
@@ -42,10 +44,9 @@ class OrderValidationService
         $attachments = $this->superDispatchService->fetchAttachments($orderID, $accessToken);
         $orderNumber = $order['data']['number'] ?? 'Unknown';
         $carModelMake = $order['data']['vehicles'][0]['make'] . ' ' . $order['data']['vehicles'][0]['model'];
+        $errorRecord = $this->orderValidationLogicService->validateOrder($order['data'], $attachments['data']);
 
         try {
-            $errorRecord = $this->orderValidationLogicService->validateOrder($order['data'], $attachments['data']);
-
             Log::info('Order validation result', ['errorRecord' => $errorRecord->toArray()]);
 
             if ($this->hasValidationErrors($errorRecord)) {
@@ -56,6 +57,8 @@ class OrderValidationService
                     $orderNumber,
                     $carModelMake
                 );
+
+                $errorRecord->save();
 
                 foreach ($chatIds as $chatId) {
                     $this->sendMessageToChat(trim($chatId), $formattedMessage);
@@ -75,7 +78,7 @@ class OrderValidationService
     private function hasValidationErrors(Error $errorRecord): bool
     {
         foreach ($errorRecord->getAttributes() as $key => $value) {
-            if (str_starts_with($key, 'err_') && $value == 1) {
+            if ($key !== self::EXCLUDE_FLAG && str_starts_with($key, 'err_') && $value == 1) {
                 return true;
             }
         }
