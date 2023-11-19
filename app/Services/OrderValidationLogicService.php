@@ -52,7 +52,7 @@ class OrderValidationLogicService
     {
         foreach ($vehicles as $vehicle) {
             foreach (self::PAYMENT_METHODS as $method) {
-                if (isset($vehicle[$method])) {
+                if (isset($vehicle[$method]) || isset($vehicle[strtolower($method)])) {
                     return true;
                 }
             }
