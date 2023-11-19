@@ -11,6 +11,8 @@ class OrderValidationLogicService
 
     public function validateOrder(array $order, array $attachments): Error
     {
+        Log::info('Payment terms', ['terms' => $order['payments']['terms'] ?? 'Not set']);
+
         $errorRecord = Error::firstOrNew(['order_id' => $order['id']]);
         $this->setValidationFlags($errorRecord, $order, $attachments);
         return $errorRecord;
@@ -59,16 +61,25 @@ class OrderValidationLogicService
         return true;
     }
 
-    private function hasPaymentMethodError(string $terms): bool
+    private function hasPaymentMethodError(?string $terms): bool
     {
+        if (is_null($terms)) {
+            Log::info('Payment terms are null');
+            return true;
+        }
+
         $normalizedTerms = strtolower($terms);
         foreach (self::PAYMENT_METHODS as $method) {
             if (strtolower($method) === $normalizedTerms || strtoupper($method) === $normalizedTerms) {
+                Log::info('Payment method matches', ['method' => $method]);
                 return false;
             }
         }
+
+        Log::info('Payment method does not match', ['terms' => $terms]);
         return true;
     }
+
 
     private function hasEmail(array $notes): bool
     {
