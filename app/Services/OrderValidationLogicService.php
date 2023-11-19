@@ -59,16 +59,16 @@ class OrderValidationLogicService
         return true;
     }
 
-    private function hasPaymentMethodError(?string $terms): bool
+    private function hasPaymentMethodError(string $terms): bool
     {
+        $normalizedTerms = strtolower($terms);
         foreach (self::PAYMENT_METHODS as $method) {
-            if (str_contains(strtolower($terms), strtolower($method))) {
-                return true;
+            if (strtolower($method) === $normalizedTerms || strtoupper($method) === $normalizedTerms) {
+                return false;
             }
         }
-        return false;
+        return true;
     }
-
 
     private function hasEmail(array $notes): bool
     {
