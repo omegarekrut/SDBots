@@ -7,50 +7,42 @@ use Illuminate\Support\Facades\Log;
 
 class OrderValidationLogicService
 {
-    const PAYMENT_METHODS = ['Factoring', 'Other', 'Comcheck', 'ACH'];
+    private const PAYMENT_METHODS = ['Factoring', 'Other', 'Comcheck', 'ACH'];
 
     public function validateOrder(array $order, array $attachments): Error
     {
         $errorRecord = Error::firstOrNew(['order_id' => $order['id']]);
-        if ($errorRecord->exists) {
-            $errorRecord->err_count += 1;
-        } else {
-            $errorRecord->err_count = 1;
-        }
+        $errorRecord->err_count = $errorRecord->exists ? $errorRecord->err_count + 1 : 1;
         $this->setValidationFlags($errorRecord, $order, $attachments);
+
         return $errorRecord;
     }
 
     private function setValidationFlags(Error $errorRecord, array $order, array $attachments): void
     {
-        $errorRecord->fill(attributes: [
+        $errorRecord->fill([
             'err_loadid' => $this->isInvalid($order['number'] ?? null),
             'err_client' => $this->isInvalid($order['customer']['name'] ?? null),
-            'err_amount' => $order['price'] < 100,
-            'err_attach' => $this->hasValidPdfAttachment($attachments),
-            'err_pickaddress' => $this->isAddressInvalid($order['pickup']['venue']['address'] ?? null),
-            'err_pickaddress_zip' => $this->isZipInvalid($order['pickup']['venue']['zip'] ?? null),
-            'err_deladdress' => $this->isAddressInvalid($order['delivery']['venue']['address'] ?? null),
-            'err_deladdress_zip' => $this->isZipInvalid($order['delivery']['venue']['zip'] ?? null),
-            'err_email' => !$this->hasEmail($order['internal_notes'] ?? []),
-            'err_pickbol' => count($order['vehicles'][0]['photos'] ?? []) < 20, //$this->isInvalid($order['pdf_bol_url'] ?? null)
-            'err_method' => $this->hasPaymentMethodError($order['payment']['terms'] ?? null)
+            'err_amount' => $this->isAmountInvalid($order['price'] ?? 0),
+            'err_attach' => !$this->hasValidPdfAttachment($attachments),
+            'err_pickaddress' => $this->isInvalid($order['pickup']['venue']['address'] ?? null),
+            'err_pickaddress_zip' => $this->isInvalid($order['pickup']['venue']['zip'] ?? null),
+            'err_deladdress' => $this->isInvalid($order['delivery']['venue']['address'] ?? null),
+            'err_deladdress_zip' => $this->isInvalid($order['delivery']['venue']['zip'] ?? null),
+            'err_email' => $this->hasEmail($order['internal_notes'] ?? []),
+            'err_pickbol' => $this->isPhotoCountInvalid($order['vehicles'][0]['photos'] ?? []),
+            'err_method' => !$this->hasValidPaymentMethod($order['payment']['terms'] ?? null)
         ]);
     }
 
-    private function isInvalid($value): bool
+    private function isInvalid(?string $value): bool
     {
         return empty($value);
     }
 
-    private function isAddressInvalid(?string $address): bool
+    private function isAmountInvalid(float $amount): bool
     {
-        return empty($address);
-    }
-
-    private function isZipInvalid(?string $zip): bool
-    {
-        return empty($zip);
+        return $amount < 100;
     }
 
     private function hasValidPdfAttachment(array $attachments): bool
@@ -58,23 +50,16 @@ class OrderValidationLogicService
         foreach ($attachments as $attachment) {
             if (str_ends_with(strtolower($attachment['name'] ?? ''), '.pdf') &&
                 filter_var($attachment['url'] ?? '', FILTER_VALIDATE_URL)) {
-                return false;
+                return true;
             }
         }
-        return true;
+        return false;
     }
 
-    private function hasPaymentMethodError(?string $terms): bool
+    private function hasValidPaymentMethod(?string $terms): bool
     {
-        if ($terms === null) {
-            return true;
-        }
-
-        $termsUpper = strtoupper($terms);
-        return in_array($termsUpper, array_map('strtoupper', self::PAYMENT_METHODS), true);
+        return in_array(strtoupper($terms), array_map('strtoupper', self::PAYMENT_METHODS), true);
     }
-
-
 
     private function hasEmail(array $notes): bool
     {
@@ -84,5 +69,10 @@ class OrderValidationLogicService
             }
         }
         return false;
+    }
+
+    private function isPhotoCountInvalid(array $photos): bool
+    {
+        return count($photos) < 20;
     }
 }
