@@ -24,14 +24,14 @@ class OrderValidationLogicService
             'err_loadid' => $this->isInvalid($order['number'] ?? null),
             'err_client' => $this->isInvalid($order['customer']['name'] ?? null),
             'err_amount' => $this->isAmountInvalid($order['price'] ?? 0),
-            'err_attach' => !$this->hasValidPdfAttachment($attachments),
+            'err_attach' => $this->hasValidPdfAttachment($attachments),
             'err_pickaddress' => $this->isInvalid($order['pickup']['venue']['address'] ?? null),
             'err_pickaddress_zip' => $this->isInvalid($order['pickup']['venue']['zip'] ?? null),
             'err_deladdress' => $this->isInvalid($order['delivery']['venue']['address'] ?? null),
             'err_deladdress_zip' => $this->isInvalid($order['delivery']['venue']['zip'] ?? null),
             'err_email' => $this->hasEmail($order['internal_notes'] ?? []),
             'err_pickbol' => $this->isPhotoCountInvalid($order['vehicles'][0]['photos'] ?? []),
-            'err_method' => !$this->hasValidPaymentMethod($order['payment']['terms'] ?? null)
+            'err_method' => $this->hasValidPaymentMethod($order['payment']['terms'] ?? null)
         ]);
     }
 
