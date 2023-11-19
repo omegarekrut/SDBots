@@ -12,6 +12,11 @@ class OrderValidationLogicService
     public function validateOrder(array $order, array $attachments): Error
     {
         $errorRecord = Error::firstOrNew(['order_id' => $order['id']]);
+        if ($errorRecord->exists) {
+            $errorRecord->err_count += 1;
+        } else {
+            $errorRecord->err_count = 1;
+        }
         $this->setValidationFlags($errorRecord, $order, $attachments);
         return $errorRecord;
     }
