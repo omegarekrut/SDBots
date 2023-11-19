@@ -31,7 +31,7 @@ class OrderValidationLogicService
             'err_deladdress_zip' => $this->isInvalid($order['delivery']['venue']['zip'] ?? null),
             'err_email' => $this->hasEmail($order['internal_notes'] ?? []),
             'err_pickbol' => $this->isPhotoCountInvalid($order['vehicles'][0]['photos'] ?? []),
-            'err_method' => !$this->hasValidPaymentMethod($order['payment']['terms'] ?? null)
+            'err_method' => $this->hasValidPaymentMethod($order['payment']['terms'] ?? null)
         ]);
     }
 
@@ -63,6 +63,10 @@ class OrderValidationLogicService
 
     private function hasEmail(array $notes): bool
     {
+        if (empty($notes)) {
+            return false;
+        }
+
         foreach ($notes as $note) {
             if (filter_var($note, FILTER_VALIDATE_EMAIL)) {
                 return true;
