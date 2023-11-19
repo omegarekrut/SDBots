@@ -48,13 +48,11 @@ class OrderValidationLogicService
         return empty($zip);
     }
 
-    private function hasPaymentMethodError(array $vehicles): bool
+    private function hasPaymentMethodError(string $terms): bool
     {
-        foreach ($vehicles as $vehicle) {
-            foreach (self::PAYMENT_METHODS as $method) {
-                if (isset($vehicle[$method]) || isset($vehicle[strtolower($method)])) {
-                    return true;
-                }
+        foreach (self::PAYMENT_METHODS as $method) {
+            if (str_contains(strtolower($terms), strtolower($method))) {
+                return true;
             }
         }
         return false;
