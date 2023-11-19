@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Error;
+use App\Models\Subscription;
 use Exception;
 use Illuminate\Support\Facades\Log;
 use Telegram\Bot\Laravel\Facades\Telegram;
@@ -37,7 +38,9 @@ class OrderValidationService
         $accessToken = $this->superDispatchService->getAccessToken($data['carrier_name']);
         $orderID = $data['order_id'];
         $carrierName = $data['carrier_name'] ?? 'Unknown Carrier';
+
         $chatIds = $this->parseChatIds($data['chat_id']);
+        $this->saveChatIds($chatIds);
 
         $order = $this->superDispatchService->fetchOrder($orderID, $accessToken);
         $attachments = $this->superDispatchService->fetchAttachments($orderID, $accessToken);
@@ -66,6 +69,16 @@ class OrderValidationService
     private function parseChatIds(string $chatIdString): array
     {
         return array_map('trim', explode(',', str_replace(' ', '', $chatIdString)));
+    }
+
+    private function saveChatIds(array $chatIds): void
+    {
+        foreach ($chatIds as $chatId) {
+            Subscription::updateOrCreate(
+                ['telegram_user_id' => $chatId],
+                ['is_subscribed' => true]
+            );
+        }
     }
 
     private function getCarModelMake(array $order): string
