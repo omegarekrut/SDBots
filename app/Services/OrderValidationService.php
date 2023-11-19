@@ -40,8 +40,8 @@ class OrderValidationService
 
         $order = $this->superDispatchService->fetchOrder($orderID, $accessToken);
         $attachments = $this->superDispatchService->fetchAttachments($orderID, $accessToken);
-        $orderNumber = $order['number'] ?? 'Unknown';
-        $carModelMake = $order['vehicles']['make'] . $order['vehicles']['model'];
+        $orderNumber = $order['data']['number'] ?? 'Unknown';
+        $carModelMake = $order['data']['vehicles']['make'] . $order['data']['vehicles']['model'];
 
         try {
             $errorRecord = $this->orderValidationLogicService->validateOrder($order['data'], $attachments['data']);
