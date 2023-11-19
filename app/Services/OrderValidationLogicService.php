@@ -68,11 +68,11 @@ class OrderValidationLogicService
         $termsUpper = strtoupper($terms);
         foreach (self::PAYMENT_METHODS as $method) {
             if (strtoupper($method) === $termsUpper) {
-                return false;
+                return true;
             }
         }
 
-        return true;
+        return false;
     }
 
 
