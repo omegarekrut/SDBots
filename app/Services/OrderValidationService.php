@@ -4,17 +4,16 @@ namespace App\Services;
 
 use App\Models\Error;
 use Exception;
-use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Log;
 use Telegram\Bot\Laravel\Facades\Telegram;
 
 class OrderValidationService
 {
+    private const EXCLUDE_FLAG = "err_count";
+
     private OrderValidationLogicService $orderValidationLogicService;
     private TelegramValidationMessageService $telegramValidationMessageService;
     private SuperDispatchService $superDispatchService;
-
-    const EXCLUDE_FLAG = "err_count";
 
     public function __construct(
         OrderValidationLogicService $orderValidationLogicService,
@@ -38,41 +37,45 @@ class OrderValidationService
         $accessToken = $this->superDispatchService->getAccessToken($data['carrier_name']);
         $orderID = $data['order_id'];
         $carrierName = $data['carrier_name'] ?? 'Unknown Carrier';
-        $chatIds = explode(',', str_replace(' ', '', $data['chat_id']));
+        $chatIds = $this->parseChatIds($data['chat_id']);
 
         $order = $this->superDispatchService->fetchOrder($orderID, $accessToken);
         $attachments = $this->superDispatchService->fetchAttachments($orderID, $accessToken);
         $orderNumber = $order['data']['number'] ?? 'Unknown';
-        $carModelMake = $order['data']['vehicles'][0]['make'] . ' ' . $order['data']['vehicles'][0]['model'];
+        $carModelMake = $this->getCarModelMake($order);
         $errorRecord = $this->orderValidationLogicService->validateOrder($order['data'], $attachments['data']);
 
-        try {
-            Log::info('Order validation result', ['errorRecord' => $errorRecord->toArray()]);
+        $this->logValidationResult($errorRecord);
 
-            if ($this->hasValidationErrors($errorRecord)) {
-                $formattedMessage = $this->telegramValidationMessageService->formatValidationResults(
-                    $errorRecord,
-                    $orderID,
-                    $carrierName,
-                    $orderNumber,
-                    $carModelMake
-                );
+        if ($this->hasValidationErrors($errorRecord)) {
+            $formattedMessage = $this->telegramValidationMessageService->formatValidationResults(
+                $errorRecord,
+                $orderID,
+                $carrierName,
+                $orderNumber,
+                $carModelMake
+            );
 
-                $errorRecord->save();
-
-                foreach ($chatIds as $chatId) {
-                    $this->sendMessageToChat(trim($chatId), $formattedMessage);
-                }
-            }
-
-            return [
-                'success' => '1',
-                'message' => 'Validation processed.'
-            ];
-        } catch (Exception $e) {
-            Log::error('Error in order validation: ' . $e->getMessage());
-            throw $e;
+            $errorRecord->save();
+            $this->sendMessagesToChats($chatIds, $formattedMessage);
         }
+
+        return ['success' => '1', 'message' => 'Validation processed.'];
+    }
+
+    private function parseChatIds(string $chatIdString): array
+    {
+        return array_map('trim', explode(',', str_replace(' ', '', $chatIdString)));
+    }
+
+    private function getCarModelMake(array $order): string
+    {
+        return $order['data']['vehicles'][0]['make'] . ' ' . $order['data']['vehicles'][0]['model'];
+    }
+
+    private function logValidationResult(Error $errorRecord): void
+    {
+        Log::info('Order validation result', ['errorRecord' => $errorRecord->toArray()]);
     }
 
     private function hasValidationErrors(Error $errorRecord): bool
@@ -83,6 +86,13 @@ class OrderValidationService
             }
         }
         return false;
+    }
+
+    private function sendMessagesToChats(array $chatIds, string $formattedMessage): void
+    {
+        foreach ($chatIds as $chatId) {
+            $this->sendMessageToChat($chatId, $formattedMessage);
+        }
     }
 
     private function sendMessageToChat(string $chatId, string $message): void
