@@ -41,6 +41,7 @@ class OrderValidationService
         $order = $this->superDispatchService->fetchOrder($orderID, $accessToken);
         $attachments = $this->superDispatchService->fetchAttachments($orderID, $accessToken);
         $orderNumber = $order['data']['number'] ?? 'Unknown';
+        $carModelMake = $order['vehicles']['make'] . $order['vehicles']['model'];
 
         try {
             $errorRecord = $this->orderValidationLogicService->validateOrder($order['data'], $attachments['data']);
@@ -52,7 +53,8 @@ class OrderValidationService
                     $errorRecord,
                     $orderID,
                     $carrierName,
-                    $orderNumber
+                    $orderNumber,
+                    $carModelMake
                 );
 
                 foreach ($chatIds as $chatId) {

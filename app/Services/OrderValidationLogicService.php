@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Error;
+use Illuminate\Support\Facades\Log;
 
 class OrderValidationLogicService
 {
@@ -18,7 +19,7 @@ class OrderValidationLogicService
     private function setValidationFlags(Error $errorRecord, array $order, array $attachments): void
     {
         $errorRecord->fill(attributes: [
-            'err_loadid' => $this->isInvalid($order['data']['number'] ?? null),
+            'err_loadid' => $this->isInvalid($order['number'] ?? null),
             'err_client' => $this->isInvalid($order['customer']['name'] ?? null),
             'err_amount' => $order['price'] < 100,
             'err_attach' => $this->hasValidPdfAttachment($attachments),
