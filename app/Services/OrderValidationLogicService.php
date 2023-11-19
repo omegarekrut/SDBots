@@ -29,7 +29,7 @@ class OrderValidationLogicService
             'err_deladdress_zip' => $this->isZipInvalid($order['delivery']['venue']['zip'] ?? null),
             'err_email' => !$this->hasEmail($order['internal_notes'] ?? []),
             'err_pickbol' => count($order['vehicles'][0]['photos'] ?? []) < 20, //$this->isInvalid($order['pdf_bol_url'] ?? null)
-            'err_method' => $this->hasPaymentMethodError($order['vehicles'] ?? [])
+            'err_method' => $this->hasPaymentMethodError($order['payments']['terms'] ?? [])
         ]);
     }
 
