@@ -6,7 +6,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class Error extends Model
 {
-    public mixed $order_id;
     protected $table = 'errors';
     protected $fillable = [
         'order_id',
