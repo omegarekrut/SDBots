@@ -47,9 +47,9 @@ class TelegramValidationMessageService
         return $message;
     }
 
-    private function isValidationErrorKey(string $key, int $value): bool
+    private function isValidationErrorKey(string $key, $value): bool
     {
-        return str_starts_with($key, 'err_') && $key !== 'err_count' && $value === 1;
+        return str_starts_with($key, 'err_') && $key !== 'err_count' && $value == 1;
     }
 
     private function appendErrorMessageOrFinalize(string $message, Error $results): string
