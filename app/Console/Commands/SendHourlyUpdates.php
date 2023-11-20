@@ -36,8 +36,6 @@ class SendHourlyUpdates extends Command
             $errors = $this->fetchErrorsWithConditions();
             if ($errors->isNotEmpty()) {
                 $message = $this->formatErrors($errors);
-                Log::info("Sending Telegram message: " . $message);
-
                 try {
                     Telegram::sendMessage([
                         'chat_id' => $subscriber->telegram_user_id,
