@@ -63,7 +63,7 @@ class SendHourlyUpdates extends Command
 
     private function formatSingleError(Error $error, int $index): string
     {
-        $formattedError = "🔔 Error " . ($index + 1) . " /(Order ID: " . $this->markdownFormatter->escape($error->order_id) . "/):\n";
+        $formattedError = "🔔 Error " . ($index + 1) . " \(Order ID: " . $this->markdownFormatter->escape($error->order_id) . "\):\n";
         $errorMessages = $this->errorMessageService->getErrorMessages();
 
         foreach ($errorMessages as $key => $message) {
