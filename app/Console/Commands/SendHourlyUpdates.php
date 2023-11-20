@@ -68,7 +68,7 @@ class SendHourlyUpdates extends Command
 
         foreach ($errorMessages as $key => $message) {
             if ($error->$key == 1) {
-                $formattedError .= "\- " . $this->markdownFormatter->escape($message) . "\n";
+                $formattedError .= "\- " . $message . "\n";
             }
         }
 
