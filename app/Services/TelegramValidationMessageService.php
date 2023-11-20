@@ -15,21 +15,20 @@ class TelegramValidationMessageService
         $this->markdownFormatter = $markdownFormatter;
     }
 
-    public function formatValidationResults(Error $errorObject, string $orderID, string $carrierName, string $orderNumber, string $carModelMake): string
+    public function formatValidationResults(Error $errorObject, string $orderID, string $carrierName, string $orderNumber, string $carModelMake, string $driverId): string
     {
-        $formattedMessage = $this->buildInitialMessage($errorObject, $carrierName, $orderNumber, $carModelMake);
+        $formattedMessage = $this->buildInitialMessage($carrierName, $orderNumber, $carModelMake);
         $formattedMessage .= $this->buildErrorMessages($errorObject);
 
         return $this->appendErrorMessageOrFinalize($formattedMessage, $errorObject);
     }
 
-    private function buildInitialMessage(Error $errorObject, string $carrierName, string $orderNumber, string $carModelMake): string
+    private function buildInitialMessage(string $carrierName, string $orderNumber, string $carModelMake): string
     {
         $loadIdSection = $orderNumber ? "\n📄 *Load ID:* `" . $this->markdownFormatter->escape($orderNumber) . "`" : "";
 
         return sprintf(
-            "🔍 Validation results for Order ID: %s\n\n⚡️⚡️⚡️\n\n🏢 *Carrier name:* %s%s\n🚘 *Car: * %s\n",
-            $errorObject->order_id,
+            "🔍 Validation results: ⚡️⚡️⚡️\n\n🏢 *Carrier name:* %s%s\n🚘 *Car: * %s\n",
             $carrierName,
             $loadIdSection,
             $this->markdownFormatter->escape($carModelMake)

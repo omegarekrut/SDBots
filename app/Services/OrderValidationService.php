@@ -47,6 +47,7 @@ class OrderValidationService
         $orderNumber = $order['data']['number'] ?? 'Unknown';
         $carModelMake = $this->getCarModelMake($order);
         $errorRecord = $this->orderValidationLogicService->validateOrder($order['data'], $attachments['data']);
+        $driverId = $order['data']['driver_id'] ?? 'Unknown';
 
         $this->logValidationResult($errorRecord);
 
@@ -56,7 +57,8 @@ class OrderValidationService
                 $orderID,
                 $carrierName,
                 $orderNumber,
-                $carModelMake
+                $carModelMake,
+                $driverId
             );
 
             $errorRecord->save();
