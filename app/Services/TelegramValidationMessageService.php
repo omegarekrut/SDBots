@@ -7,36 +7,35 @@ use App\Models\Error;
 class TelegramValidationMessageService
 {
     private ErrorMessageService $errorMessageService;
-    private MarkdownFormatterService $markdownFormatter;
+    private MarkdownFormatter $markdownFormatter;
 
-    public function __construct(ErrorMessageService $errorMessageService, MarkdownFormatterService $markdownFormatter)
+    public function __construct(ErrorMessageService $errorMessageService, MarkdownFormatter $markdownFormatter)
     {
         $this->errorMessageService = $errorMessageService;
         $this->markdownFormatter = $markdownFormatter;
     }
 
-    public function formatValidationResults(Error $errorObject, string $carrierName, string $orderNumber): string
+    public function formatValidationResults(Error $errorObject, string $orderID, string $carrierName, string $orderNumber, string $carModelMake): string
     {
-        $formattedMessage = $this->buildInitialMessage($errorObject, $carrierName, $orderNumber);
+        $formattedMessage = $this->buildInitialMessage($errorObject, $carrierName, $orderNumber, $carModelMake);
         $formattedMessage .= $this->buildErrorMessages($errorObject);
 
         return $this->appendErrorMessageOrFinalize($formattedMessage, $errorObject);
     }
 
-    private function buildInitialMessage(string $carrierName, string $orderNumber, string $carModelMake): string
+    private function buildInitialMessage(Error $errorObject, string $carrierName, string $orderNumber, string $carModelMake): string
     {
-        $escapedCarrierName = $this->markdownFormatter->escape($carrierName);
-        $message = "🔍 Validation results:\n\n⚡️⚡️⚡️\n\n🏢 *Carrier name:* {$escapedCarrierName}\n";
+        $loadIdSection = $orderNumber ? "\n📄 *Load ID:* `" . $this->markdownFormatter->escape($orderNumber) . "`" : "";
 
-        if (!empty($orderNumber)) {
-            $escapedOrderNumber = $this->markdownFormatter->escape($orderNumber);
-            $message .= "📄 *Load ID:* `{$escapedOrderNumber}`\n";
-        }
-
-        $message .= "🚘 *Car: * {$this->markdownFormatter->escape($carModelMake)}\n";
-
-        return $message;
+        return sprintf(
+            "🔍 Validation results for Order ID: %s\n\n⚡️⚡️⚡️\n\n🏢 *Carrier name:* %s%s\n🚘 *Car: * %s\n",
+            $errorObject->order_id,
+            $carrierName,
+            $loadIdSection,
+            $this->markdownFormatter->escape($carModelMake)
+        );
     }
+
 
     private function buildErrorMessages(Error $errorObject): string
     {
