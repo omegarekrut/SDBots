@@ -5,29 +5,27 @@ namespace App\Console\Commands;
 use App\Models\Error;
 use App\Models\Subscription;
 use App\Services\ErrorMessageService;
+use App\Services\MarkdownFormatterService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
+use Telegram\Bot\Exceptions\TelegramResponseException;
 use Telegram\Bot\Laravel\Facades\Telegram;
 
 class SendHourlyUpdates extends Command
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
     protected $signature = 'app:send-hourly-updates';
+    protected $description = 'Send hourly updates to subscribers';
 
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
-    protected $description = 'Command description';
+    private ErrorMessageService $errorMessageService;
+    private MarkdownFormatterService $markdownFormatter;
 
-    /**
-     * Execute the console command.
-     */
+    public function __construct(ErrorMessageService $errorMessageService, MarkdownFormatterService $markdownFormatter)
+    {
+        parent::__construct();
+        $this->errorMessageService = $errorMessageService;
+        $this->markdownFormatter = $markdownFormatter;
+    }
+
     public function handle(): void
     {
         $subscribers = Subscription::where('is_subscribed', true)->get();
@@ -35,70 +33,62 @@ class SendHourlyUpdates extends Command
         foreach ($subscribers as $subscriber) {
             $errors = $this->fetchErrorsWithConditions();
             if ($errors->isNotEmpty()) {
-                $message = $this->formatErrors($errors);
-                try {
-                    Telegram::sendMessage([
-                        'chat_id' => $subscriber->telegram_user_id,
-                        'text' => $message,
-                        'parse_mode' => 'MarkdownV2'
-                    ]);
-                } catch (\Telegram\Bot\Exceptions\TelegramResponseException $e) {
-                    Log::error("Failed to send message to Telegram chat (ID: {$subscriber->telegram_user_id}): " . $e->getMessage());
-                } catch (\Exception $e) {
-                    Log::error("An error occurred when sending message to Telegram chat (ID: {$subscriber->telegram_user_id}): " . $e->getMessage());
-                }
+                $messages = $this->formatErrors($errors);
+                $this->sendMessages($subscriber->telegram_user_id, $messages);
             }
         }
     }
 
     private function fetchErrorsWithConditions()
     {
-        return Error::where(function ($query) {
-            $errorConditions = [
-                'err_loadid', 'err_client', 'err_amount', 'err_attach',
-                'err_pickaddress', 'err_deladdress', 'err_email',
-                'err_pickbol', 'err_method'
-            ];
+        $errorConditions = [
+            'err_loadid', 'err_client', 'err_amount', 'err_attach',
+            'err_pickaddress', 'err_deladdress', 'err_email',
+            'err_pickbol', 'err_method'
+        ];
 
+        return Error::where(function ($query) use ($errorConditions) {
             foreach ($errorConditions as $condition) {
                 $query->orWhere($condition, 1);
             }
         })->get();
     }
 
-    private function formatErrors($errors): string
+    private function formatErrors($errors): array
     {
-        $formattedMessage = "🕒 Hourly Update:\n\n⚡️⚡️⚡️\n\n";
-        $errorMessages = ErrorMessageService::getErrorMessages();
-
-        foreach ($errors as $index => $error) {
-            $formattedMessage .= $this->formatSingleError($error, $index, $errorMessages);
-        }
-
-        return $this->escapeMarkdownV2Characters($formattedMessage);
+        return $errors->map(function ($error, $index) {
+            return $this->formatSingleError($error, $index);
+        })->toArray();
     }
 
-    private function formatSingleError($error, int $index, array $errorMessages): string
+    private function formatSingleError(Error $error, int $index): string
     {
-        $formattedError = "🔔 " . ($index + 1) . ". Order ID: " . $this->escapeMarkdownV2Characters($error->order_id) . ":\n";
+        $formattedError = "🔔 Error " . ($index + 1) . " (Order ID: " . $this->markdownFormatter->escape($error->order_id) . "):\n";
+        $errorMessages = $this->errorMessageService->getErrorMessages();
+
         foreach ($errorMessages as $key => $message) {
             if ($error->$key == 1) {
-                $formattedError .= "- " . $this->escapeMarkdownV2Characters($message) . "\n";
+                $formattedError .= "- " . $this->markdownFormatter->escape($message) . "\n";
             }
         }
-        $formattedError .= "\n";
 
         return $formattedError;
     }
 
-    private function escapeMarkdownV2Characters(string $text): string
+    private function sendMessages(int $chatId, array $messages): void
     {
-        $escapeChars = ['_', '[', ']', '~', '`', '>', '#', '+', '-', '=', '|', '{', '}', '.', '!'];
-
-        foreach ($escapeChars as $char) {
-            $text = str_replace($char, '\\' . $char, $text);
+        foreach ($messages as $message) {
+            try {
+                Telegram::sendMessage([
+                    'chat_id' => $chatId,
+                    'text' => $message,
+                    'parse_mode' => 'MarkdownV2'
+                ]);
+            } catch (TelegramResponseException $e) {
+                Log::error("Failed to send message to Telegram chat (ID: $chatId): " . $e->getMessage());
+            } catch (\Exception $e) {
+                Log::error("An error occurred when sending message to Telegram chat (ID: $chatId): " . $e->getMessage());
+            }
         }
-
-        return $text;
     }
 }
