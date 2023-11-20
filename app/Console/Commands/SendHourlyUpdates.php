@@ -6,6 +6,7 @@ use App\Models\Error;
 use App\Models\Subscription;
 use App\Services\ErrorMessageService;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Log;
 use Telegram\Bot\Laravel\Facades\Telegram;
 
 class SendHourlyUpdates extends Command
@@ -35,6 +36,7 @@ class SendHourlyUpdates extends Command
             $errors = $this->fetchErrorsWithConditions();
             if ($errors->isNotEmpty()) {
                 $message = $this->formatErrors($errors);
+                Log::info("Sending Telegram message: " . $message);
                 Telegram::sendMessage([
                     'chat_id' => $subscriber->telegram_user_id,
                     'text' => $message,
@@ -73,10 +75,10 @@ class SendHourlyUpdates extends Command
 
     private function formatSingleError($error, int $index, array $errorMessages): string
     {
-        $formattedError = "🔔 " . ($index + 1) . ". Order ID: {$error->order_id}:\n";
+        $formattedError = "🔔 " . ($index + 1) . ". Order ID: " . $this->escapeMarkdownV2Characters($error->order_id) . ":\n";
         foreach ($errorMessages as $key => $message) {
             if ($error->$key == 1) {
-                $formattedError .= "- {$message}\n";
+                $formattedError .= "- " . $this->escapeMarkdownV2Characters($message) . "\n";
             }
         }
         $formattedError .= "\n";
