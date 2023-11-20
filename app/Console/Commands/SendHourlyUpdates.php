@@ -44,8 +44,6 @@ class SendHourlyUpdates extends Command
                     ]);
                 } catch (\Telegram\Bot\Exceptions\TelegramResponseException $e) {
                     Log::error("Failed to send message to Telegram chat (ID: {$subscriber->telegram_user_id}): " . $e->getMessage());
-//                    if ($e->getMessage() === 'Forbidden: bot was blocked by the user') {
-//                    }
                 } catch (\Exception $e) {
                     Log::error("An error occurred when sending message to Telegram chat (ID: {$subscriber->telegram_user_id}): " . $e->getMessage());
                 }
