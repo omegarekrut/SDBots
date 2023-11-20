@@ -23,14 +23,18 @@ class TelegramValidationMessageService
         return $this->appendErrorMessageOrFinalize($formattedMessage, $errorObject);
     }
 
-    private function buildInitialMessage(Error $errorObject, string $carrierName, string $orderNumber, string $carModelMake): string
+    private function buildInitialMessage(string $carrierName, string $orderNumber, string $carModelMake): string
     {
-        return sprintf(
-            "🔍 Validation results:\n\n⚡️⚡️⚡️\n\n🏢 *Carrier name:* %s\n📄 *Load ID:* `%s`\n🚘 *Car: * %s\n",
-            $carrierName,
-            $this->markdownFormatter->escape($orderNumber),
-            $this->markdownFormatter->escape($carModelMake)
-        );
+        $message = "🔍 Validation results:\n\n⚡️⚡️⚡️\n\n🏢 *Carrier name:* {$carrierName}\n";
+
+        if (!empty($orderNumber)) {
+            $escapedOrderNumber = $this->markdownFormatter->escape($orderNumber);
+            $message .= "📄 *Load ID:* `{$escapedOrderNumber}`\n";
+        }
+
+        $message .= "🚘 *Car: * {$this->markdownFormatter->escape($carModelMake)}\n";
+
+        return $message;
     }
 
     private function buildErrorMessages(Error $errorObject): string
