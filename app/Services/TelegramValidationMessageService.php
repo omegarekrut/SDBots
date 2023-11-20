@@ -25,7 +25,8 @@ class TelegramValidationMessageService
 
     private function buildInitialMessage(string $carrierName, string $orderNumber, string $carModelMake): string
     {
-        $message = "🔍 Validation results:\n\n⚡️⚡️⚡️\n\n🏢 *Carrier name:* {$carrierName}\n";
+        $escapedCarrierName = $this->markdownFormatter->escape($carrierName);
+        $message = "🔍 Validation results:\n\n⚡️⚡️⚡️\n\n🏢 *Carrier name:* {$escapedCarrierName}\n";
 
         if (!empty($orderNumber)) {
             $escapedOrderNumber = $this->markdownFormatter->escape($orderNumber);
