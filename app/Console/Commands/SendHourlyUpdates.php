@@ -68,7 +68,7 @@ class SendHourlyUpdates extends Command
             $formattedMessage .= $this->formatSingleError($error, $index, $errorMessages);
         }
 
-        return $formattedMessage;
+        return $this->escapeMarkdownV2Characters($formattedMessage);
     }
 
     private function formatSingleError($error, int $index, array $errorMessages): string
@@ -82,5 +82,14 @@ class SendHourlyUpdates extends Command
         $formattedError .= "\n";
 
         return $formattedError;
+    }
+
+    private function escapeMarkdownV2Characters(string $text): string
+    {
+        $escapeChars = str_split('_*[]()~`>#+-=|{}.!');
+        foreach ($escapeChars as $char) {
+            $text = str_replace($char, '\\' . $char, $text);
+        }
+        return $text;
     }
 }
