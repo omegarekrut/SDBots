@@ -86,10 +86,12 @@ class SendHourlyUpdates extends Command
 
     private function escapeMarkdownV2Characters(string $text): string
     {
-        $escapeChars = str_split('_*[]()~`>#+-=|{}.!');
+        $escapeChars = ['_', '*', '[', ']', '(', ')', '~', '`', '>', '#', '+', '-', '=', '|', '{', '}', '.', '!'];
+
         foreach ($escapeChars as $char) {
             $text = str_replace($char, '\\' . $char, $text);
         }
+
         return $text;
     }
 }
