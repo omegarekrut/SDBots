@@ -26,7 +26,7 @@ class TelegramValidationMessageService
     private function buildInitialMessage(Error $errorObject, string $carrierName, string $orderNumber, string $carModelMake): string
     {
         return sprintf(
-            "🔍 Validation results:\n\n⚡️⚡️⚡️\n\n🏢 *Carrier name:* %s\n📄 *Load ID:* ```%s```\n🚘 *Car: * %s\n",
+            "🔍 Validation results:\n\n⚡️⚡️⚡️\n\n🏢 *Carrier name:* %s\n📄 *Load ID:* `%s`\n🚘 *Car: * %s\n",
             $carrierName,
             $this->markdownFormatter->escape($orderNumber),
             $this->markdownFormatter->escape($carModelMake)
