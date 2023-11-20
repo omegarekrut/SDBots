@@ -7,17 +7,17 @@ use App\Models\Error;
 class TelegramValidationMessageService
 {
     private ErrorMessageService $errorMessageService;
-    private MarkdownFormatter $markdownFormatter;
+    private MarkdownFormatterService $markdownFormatter;
 
-    public function __construct(ErrorMessageService $errorMessageService, MarkdownFormatter $markdownFormatter)
+    public function __construct(ErrorMessageService $errorMessageService, MarkdownFormatterService $markdownFormatter)
     {
         $this->errorMessageService = $errorMessageService;
         $this->markdownFormatter = $markdownFormatter;
     }
 
-    public function formatValidationResults(Error $errorObject, string $orderID, string $carrierName, string $orderNumber, string $carModelMake): string
+    public function formatValidationResults(Error $errorObject, string $carrierName, string $orderNumber): string
     {
-        $formattedMessage = $this->buildInitialMessage($errorObject, $carrierName, $orderNumber, $carModelMake);
+        $formattedMessage = $this->buildInitialMessage($errorObject, $carrierName, $orderNumber);
         $formattedMessage .= $this->buildErrorMessages($errorObject);
 
         return $this->appendErrorMessageOrFinalize($formattedMessage, $errorObject);
