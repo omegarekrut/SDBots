@@ -22,7 +22,7 @@ class OrderValidationLogicService
     private function setValidationFlags(Error $errorRecord, array $order, array $attachments): void
     {
         $companyName = $order['customer']['name'] ?? null;
-        $companyEmail = $order['customer']['email'] ?? null;
+        $companyEmail = $order['customer']['contact']['email'] ?? null;
 
         $errorRecord->fill([
             'err_loadid' => $this->isInvalid($order['number'] ?? null),
@@ -62,27 +62,18 @@ class OrderValidationLogicService
 
     private function isCompanyEmailValid(?string $companyName, ?string $companyEmail): bool
     {
-        Log::info("Checking email validity", ['companyName' => $companyName, 'companyEmail' => $companyEmail]);
-
         if (!empty($companyEmail) && filter_var($companyEmail, FILTER_VALIDATE_EMAIL)) {
-            Log::info("Email valid from JSON", ['companyEmail' => $companyEmail]);
             return true;
         }
 
         if (!empty($companyName)) {
             $companyRecord = CdCompany::whereRaw('LOWER(company_name) = ?', [strtolower($companyName)])->first();
-            Log::info("Database check", ['companyRecord' => $companyRecord]);
 
-            if ($companyRecord && !empty($companyRecord->company_email)) {
-                Log::info("Email valid from database", ['companyEmail' => $companyRecord->company_email]);
-                return true;
-            }
+            return $companyRecord && !empty($companyRecord->company_email);
         }
 
-        Log::info("Email considered invalid");
         return false;
     }
-
 
     private function hasValidPaymentMethod(?string $terms): bool
     {
