@@ -65,8 +65,12 @@ class OrderValidationLogicService
             return true;
         }
 
-        $companyRecord = CdCompany::whereRaw('LOWER(company_name) = ?', [strtolower($companyName)])->first();
-        return $companyRecord && !empty($companyRecord->company_email);
+        if (!empty($companyName)) {
+            $companyRecord = CdCompany::whereRaw('LOWER(company_name) = ?', [strtolower($companyName)])->first();
+            return $companyRecord && !empty($companyRecord->company_email);
+        }
+
+        return false;
     }
 
     private function hasValidPaymentMethod(?string $terms): bool

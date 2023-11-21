@@ -28,7 +28,7 @@ class TelegramValidationMessageService
         $loadIdSection = $orderNumber ? "\n📄 *Load ID:* `" . $this->markdownFormatter->escape($orderNumber) . "`" : "";
 
         return sprintf(
-            "🔍 Validation results: \n\n⚡️⚡️⚡️\n\n🏢 *Carrier name:* %s%s\n🆔 *Driver: * %s\n🚘 *Car: * %s\n",
+            "🔍 Validation results: \n\n⚡️⚡️⚡️\n\n🏢 *Carrier name:* %s%s\n🆔 *Driver:* %s\n🚘 *Car:* %s\n",
             $carrierName,
             $loadIdSection,
             $this->markdownFormatter->escape($driverId),
