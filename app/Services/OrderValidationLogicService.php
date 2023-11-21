@@ -61,7 +61,7 @@ class OrderValidationLogicService
 
     private function isCompanyEmailValid(?string $companyName, ?string $companyEmail): bool
     {
-        if (!empty($companyEmail)) {
+        if (!empty($companyEmail) && filter_var($companyEmail, FILTER_VALIDATE_EMAIL)) {
             return true;
         }
 
