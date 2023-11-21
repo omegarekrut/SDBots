@@ -37,7 +37,6 @@ class TelegramValidationMessageService
         );
     }
 
-
     private function buildErrorMessages(Error $errorObject): string
     {
         $errorMessages = $this->errorMessageService->getErrorMessages();

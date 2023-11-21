@@ -3,7 +3,7 @@
 namespace App\Services;
 
 use App\Models\Error;
-use Illuminate\Support\Facades\Log;
+use App\Models\CdCompany;
 
 class OrderValidationLogicService
 {
@@ -20,6 +20,9 @@ class OrderValidationLogicService
 
     private function setValidationFlags(Error $errorRecord, array $order, array $attachments): void
     {
+        $companyName = $order['customer']['name'] ?? null;
+        $companyEmail = $order['customer']['email'] ?? null;
+
         $errorRecord->fill([
             'err_loadid' => $this->isInvalid($order['number'] ?? null),
             'err_client' => $this->isInvalid($order['customer']['name'] ?? null),
@@ -29,7 +32,7 @@ class OrderValidationLogicService
             'err_pickaddress_zip' => $this->isInvalid($order['pickup']['venue']['zip'] ?? null),
             'err_deladdress' => $this->isInvalid($order['delivery']['venue']['address'] ?? null),
             'err_deladdress_zip' => $this->isInvalid($order['delivery']['venue']['zip'] ?? null),
-            'err_email' => !$this->hasEmail($order['internal_notes'] ?? []),
+            'err_email' => !$this->isCompanyEmailValid($companyName, $companyEmail),
             'err_pickbol' => $this->isPhotoCountInvalid($order['vehicles'][0]['photos'] ?? []),
             'err_method' => $this->hasValidPaymentMethod($order['payment']['terms'] ?? null)
         ]);
@@ -54,6 +57,16 @@ class OrderValidationLogicService
             }
         }
         return false;
+    }
+
+    private function isCompanyEmailValid(?string $companyName, ?string $companyEmail): bool
+    {
+        if (!empty($companyEmail)) {
+            return true;
+        }
+
+        $companyRecord = CdCompany::whereRaw('LOWER(company_name) = ?', [strtolower($companyName)])->first();
+        return $companyRecord && !empty($companyRecord->company_email);
     }
 
     private function hasValidPaymentMethod(?string $terms): bool
