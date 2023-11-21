@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Error;
 use App\Models\CdCompany;
+use Illuminate\Support\Facades\Log;
 
 class OrderValidationLogicService
 {
@@ -61,17 +62,27 @@ class OrderValidationLogicService
 
     private function isCompanyEmailValid(?string $companyName, ?string $companyEmail): bool
     {
+        Log::info("Checking email validity", ['companyName' => $companyName, 'companyEmail' => $companyEmail]);
+
         if (!empty($companyEmail) && filter_var($companyEmail, FILTER_VALIDATE_EMAIL)) {
+            Log::info("Email valid from JSON", ['companyEmail' => $companyEmail]);
             return true;
         }
 
         if (!empty($companyName)) {
             $companyRecord = CdCompany::whereRaw('LOWER(company_name) = ?', [strtolower($companyName)])->first();
-            return $companyRecord && !empty($companyRecord->company_email);
+            Log::info("Database check", ['companyRecord' => $companyRecord]);
+
+            if ($companyRecord && !empty($companyRecord->company_email)) {
+                Log::info("Email valid from database", ['companyEmail' => $companyRecord->company_email]);
+                return true;
+            }
         }
 
+        Log::info("Email considered invalid");
         return false;
     }
+
 
     private function hasValidPaymentMethod(?string $terms): bool
     {
