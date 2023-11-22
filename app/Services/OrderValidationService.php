@@ -85,7 +85,7 @@ class OrderValidationService
 
     private function getCarModelMake(array $order): string
     {
-        return $order['data']['vehicles'][0]['make'] . ' ' . $order['data']['vehicles'][0]['model'];
+        return $order['data']['vehicles'][0]['make'] . ' ' . $order['data']['vehicles'][0]['model'] . ' ' . $order['data']['vehicles'][0]['year'];
     }
 
     private function logValidationResult(Error $errorRecord): void
