@@ -21,6 +21,7 @@ class WebhookController extends Controller
             'chat_id' => 'required|string',
             'carrier_name' => 'required|string',
             'order_id' => 'required|integer',
+            'driver' => 'string',
         ]);
 
         Log::info('Validated data:', $validatedData);
